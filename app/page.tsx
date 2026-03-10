@@ -547,10 +547,10 @@ export default function LandingPage() {
                 Inbound Marketing
               </h3>
               {[
-                { label: 'Approach',    text: 'TerritoryIQ qualifies inbound leads pre-call — routing only high-urgency, predicted-failure homes to your calendar. Stop taking calls from tire-kickers.' },
-                { label: 'Focus',       text: 'Engage audiences already searching for replacements. TerritoryIQ flags which homes in your ZIP are 60–90 days from failure, so every inbound call is a warm prospect.' },
-                { label: 'Channels',    text: 'Google LSA, organic SEO, review platforms, referral programs — all enriched with predictive data so you know which callers are worth your time before you answer.' },
-                { label: 'Metrics',     text: 'Track lead quality score, ticket size, and conversion rate from predicted homes. Cost-effective channel with outsized ROI when paired with TerritoryIQ intelligence.' },
+                { label: 'Approach',    text: 'When someone in your ZIP calls from an inbound ad or search, you instantly cross-reference their address against your territory list. You already know if their roof or HVAC is overdue — before the conversation even starts.' },
+                { label: 'Focus',       text: 'Your predicted-failure list is ready the moment you subscribe. These are real addresses, scored right now — not leads to wait on. Use them to prioritize every inbound inquiry that comes through.' },
+                { label: 'Channels',    text: 'Google LSA, organic SEO, review platforms, referral programs — when a call comes in, you have the homeowner\'s urgency score in hand, so you can close at full ticket instead of discounting to compete.' },
+                { label: 'Metrics',     text: 'Track ticket size and close rate against the urgency score. Callers who match a high-urgency address on your list convert at significantly higher rates and require less convincing.' },
               ].map(item => (
                 <div key={item.label} className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-right">
                   <div className="font-bold text-sm text-[#E05C1A] mb-1">{item.label}</div>
