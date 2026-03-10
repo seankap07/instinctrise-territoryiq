@@ -531,10 +531,12 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-[#E05C1A] font-semibold tracking-widest text-sm uppercase mb-3">Full Marketing Integration</p>
-            <h2 className="text-4xl font-extrabold text-[#0a1f44] mb-4">Every Channel. One Intelligence Layer.</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              TerritoryIQ isn&apos;t a lead vendor — it&apos;s the data engine that makes <em>every</em> channel you already
-              run perform dramatically better, across inbound, outbound, digital, and direct marketing.
+            <h2 className="text-4xl font-extrabold text-[#0a1f44] mb-4">Every Channel You Already Run. Supercharged.</h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-3">
+              TerritoryIQ isn&apos;t a replacement for your marketing — it&apos;s the intelligence layer that makes <strong className="text-[#0a1f44]">every single channel you already use</strong> dramatically more effective.
+            </p>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+              Google LSA, cold calls, direct mail, door-to-door, geofence ads, Facebook audiences, your CRM — TerritoryIQ plugs into all of them and tells you exactly which homes to target, so nothing you&apos;re already spending on goes to waste.
             </p>
           </div>
 
@@ -554,7 +556,7 @@ export default function LandingPage() {
               ].map(item => (
                 <div key={item.label} className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-right">
                   <div className="font-bold text-sm text-[#E05C1A] mb-1">{item.label}</div>
-                  <div className="text-xs text-slate-600 leading-relaxed">{item.text}</div>
+                  <div className="text-sm text-slate-600 leading-relaxed">{item.text}</div>
                 </div>
               ))}
             </div>
@@ -584,7 +586,7 @@ export default function LandingPage() {
               ].map(item => (
                 <div key={item.label} className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                   <div className="font-bold text-sm text-[#1B3A6B] mb-1">{item.label}</div>
-                  <div className="text-xs text-slate-600 leading-relaxed">{item.text}</div>
+                  <div className="text-sm text-slate-600 leading-relaxed">{item.text}</div>
                 </div>
               ))}
             </div>
@@ -631,7 +633,7 @@ export default function LandingPage() {
                   tagColor: 'bg-amber-100 text-amber-700',
                   bar: 'bg-amber-500',
                   boost: 'Post-event surge windows',
-                  desc: 'After a storm event, TerritoryIQ cross-references your ZIP\'s predicted-failure homes with storm-impact data — giving you a canvassing hit-list within hours, not days.',
+                  desc: 'When a storm hits your ZIP, TerritoryIQ instantly surfaces every home in your territory already scored as high-urgency — roof age, material type, prior storm exposure — and generates a sorted address list you can start knocking the same day. No guessing which streets to hit. You know exactly which houses need you most, ranked and ready to go.',
                 },
                 {
                   icon: '🏘️',
@@ -664,7 +666,7 @@ export default function LandingPage() {
                     <div className={`h-1 rounded-full ${ch.bar} w-8`}/>
                     <span className="text-xs font-bold text-slate-500">{ch.boost}</span>
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">{ch.desc}</p>
+                  <p className="text-sm text-slate-500 leading-relaxed">{ch.desc}</p>
                 </div>
               ))}
             </div>
