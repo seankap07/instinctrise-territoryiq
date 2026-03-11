@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const territories = [
-  { zip: '34990', trade: 'Roofing', leads: 200, urgency: 'High', status: 'Available' },
-  { zip: '34990', trade: 'HVAC',    leads: 187, urgency: 'High', status: 'Available' },
-  { zip: '34997', trade: 'Roofing', leads: 144, urgency: 'Medium', status: 'Available' },
-  { zip: '34997', trade: 'HVAC',    leads: 131, urgency: 'Medium', status: 'Available' },
-  { zip: '33455', trade: 'Roofing', leads: 95,  urgency: 'Medium', status: 'Available' },
-  { zip: '33455', trade: 'HVAC',    leads: 88,  urgency: 'Low',    status: 'Available' },
-  { zip: '34994', trade: 'Roofing', leads: 172, urgency: 'High',   status: 'Claimed' },
-  { zip: '34986', trade: 'HVAC',    leads: 210, urgency: 'High',   status: 'Claimed' },
+  { zip: '34990', trade: 'Roofing', status: 'Available' },
+  { zip: '34990', trade: 'HVAC',    status: 'Available' },
+  { zip: '34997', trade: 'Roofing', status: 'Available' },
+  { zip: '34997', trade: 'HVAC',    status: 'Available' },
+  { zip: '33455', trade: 'Roofing', status: 'Available' },
+  { zip: '33455', trade: 'HVAC',    status: 'Available' },
+  { zip: '34994', trade: 'Roofing', status: 'Claimed'   },
+  { zip: '34986', trade: 'HVAC',    status: 'Claimed'   },
 ];
 
 const navLinks = [
@@ -120,11 +120,23 @@ function MarketingWheel() {
       {/* Inner circle */}
       <circle cx={cx} cy={cy} r={innerR} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
 
-      {/* Center content */}
-      <text x={cx} y={cy - 24} textAnchor="middle" fontSize="11" fontWeight="800" fill="#1B3A6B">TerritoryIQ</text>
-      <text x={cx} y={cy - 10} textAnchor="middle" fontSize="8"  fill="#64748b">Predictive</text>
-      <text x={cx} y={cy + 2}  textAnchor="middle" fontSize="8"  fill="#64748b">Intelligence</text>
-      <text x={cx} y={cy + 16} textAnchor="middle" fontSize="7.5" fill="#94a3b8">1 Trade · 1 ZIP</text>
+      {/* Center: mini logo */}
+      <g transform="translate(125 108) scale(0.7)">
+        <circle cx="63" cy="27" r="14" fill="#F5A623"/>
+        <line x1="63" y1="7"  x2="63" y2="1"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
+        <line x1="63" y1="47" x2="63" y2="53" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
+        <line x1="43" y1="27" x2="37" y2="27" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
+        <line x1="83" y1="27" x2="89" y2="27" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
+        <line x1="49" y1="13" x2="45" y2="9"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
+        <line x1="77" y1="13" x2="81" y2="9"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
+        <polygon points="10,60 50,30 90,60" fill="#E05C1A"/>
+        <rect x="18" y="60" width="64" height="34" rx="2" fill="#1B3A6B"/>
+        <rect x="40" y="74" width="16" height="20" rx="2" fill="#0f2344"/>
+        <rect x="22" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
+        <rect x="60" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
+      </g>
+      <text x={cx} y={cy + 46} textAnchor="middle" fontSize="10" fontWeight="800" fill="#1B3A6B">TerritoryIQ</text>
+      <text x={cx} y={cy + 58} textAnchor="middle" fontSize="7.5" fill="#94a3b8">1 Trade · 1 ZIP</text>
 
       {/* Divider line */}
       <line x1={cx} y1={cy - innerR + 4} x2={cx} y2={cy + innerR - 4} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3,3"/>
@@ -205,18 +217,32 @@ function TAMSection() {
 
 // ─── Info Capture Form ────────────────────────────────────────────────────────
 
-function LeadCaptureForm() {
+function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: string; initialTrade?: string }) {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading]     = useState(false);
   const [form, setForm] = useState({
-    name: '', company: '', trade: '', zip: '', phone: '', email: '', message: '',
+    name: '', company: '', trade: initialTrade, zip: initialZip, phone: '', email: '', message: '',
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
+    try {
+      // Configure your form endpoint — sign up free at https://formspree.io
+      // Replace YOUR_FORM_ID below with your actual Formspree form ID
+      await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(form),
+      });
+    } catch {
+      // Show success regardless — configure endpoint to capture submissions
+    }
+    setLoading(false);
     setSubmitted(true);
   }
 
@@ -340,9 +366,10 @@ function LeadCaptureForm() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#E05C1A] text-white py-3.5 rounded-xl font-bold text-base hover:bg-orange-600 transition shadow-lg"
+                  disabled={loading}
+                  className="w-full bg-[#E05C1A] text-white py-3.5 rounded-xl font-bold text-base hover:bg-orange-600 transition shadow-lg disabled:opacity-60"
                 >
-                  Check My ZIP Availability →
+                  {loading ? 'Sending...' : 'Check My ZIP Availability →'}
                 </button>
                 <p className="text-center text-xs text-slate-400">No spam. No shared leads. Pricing discussed on our call.</p>
               </form>
@@ -375,10 +402,8 @@ export default function LandingPage() {
               <a key={l.href} href={l.href} className="text-sm font-medium text-slate-600 hover:text-[#1B3A6B] transition">{l.label}</a>
             ))}
           </div>
-          <a href="#get-started">
-            <button className="bg-[#E05C1A] text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-orange-600 transition shadow">
-              Claim Your ZIP
-            </button>
+          <a href="#get-started" className="inline-block bg-[#E05C1A] text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-orange-600 transition shadow">
+            Claim Your ZIP
           </a>
         </div>
       </nav>
@@ -410,15 +435,11 @@ export default function LandingPage() {
             Roofing. HVAC. Yours alone. No bidding wars. No shared leads. Just you dominating with data.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#territories">
-              <button className="bg-[#E05C1A] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition shadow-xl">
-                View Available Territories →
-              </button>
+            <a href="#territories" className="inline-block bg-[#E05C1A] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition shadow-xl text-center">
+              View Available Territories →
             </a>
-            <a href="#how-it-works">
-              <button className="border-2 border-white/30 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition">
-                How It Works
-              </button>
+            <a href="#how-it-works" className="inline-block border-2 border-white/30 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition text-center">
+              How It Works
             </a>
           </div>
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -488,9 +509,9 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             {[
-              { step: '01', icon: '🎯', title: 'Predict Failures',  desc: 'We analyze roof age, HVAC vintage, material data, climate exposure (saltwater, UV, humidity), and neighborhood patterns to score every home in your ZIP for replacement urgency.', bullets: ['15-yr roof in saltwater zone = high urgency', '11-yr HVAC in coastal FL = prime prospect', 'Post-storm neighborhood = surge window'] },
-              { step: '02', icon: '🔒', title: 'Own the Territory', desc: 'You are the only contractor in your trade for that ZIP. No one else gets your list. Your predictions, your homeowners, your pipeline — period.', bullets: ['1 roofer per ZIP code', '1 HVAC contractor per ZIP code', 'Locked the moment you subscribe'] },
-              { step: '03', icon: '💰', title: 'Close More Deals',  desc: 'Reach out before the emergency. A homeowner who planned the replacement is a $15k–$25k ticket. The one with a leak at 2am is a $4k patch job.', bullets: ['25% higher close rates', 'Full-ticket planned replacements', 'Recurring revenue via preventive upsells'] },
+              { step: '01', icon: '🎯', title: 'Find Replacement-Ready Homes', desc: 'We use proprietary data to identify homes in your ZIP that are due for a full roof or HVAC replacement — before the homeowner has to deal with it breaking and start calling around for estimates.', bullets: ['Replacement-ready homes identified before they break', 'You reach out first — not after an emergency dispatch', 'Post-storm ZIPs surface immediately so you can move fast'] },
+              { step: '02', icon: '🔒', title: 'Own the Territory',            desc: 'You are the only contractor in your trade for that ZIP. No one else gets your list. Your homes, your pipeline — period. The moment you subscribe, that territory is locked.', bullets: ['1 roofer per ZIP code', '1 HVAC contractor per ZIP code', 'Locked the moment you subscribe'] },
+              { step: '03', icon: '💰', title: 'Close Full Replacement Jobs',  desc: 'These are not service calls or patch jobs. A homeowner who planned a replacement is a $15k–$25k roofing ticket or an $8k–$15k HVAC replacement. Reach them before the emergency and you win at full price.', bullets: ['Full replacement tickets — not service calls', 'No bidding wars — you\'re the only contractor with this list', 'One replacement job typically covers the entire year\'s cost'] },
             ].map((s, i) => (
               <div key={s.step} className="relative">
                 <div className="bg-slate-50 rounded-2xl p-7 border border-slate-200 h-full">
@@ -530,6 +551,9 @@ export default function LandingPage() {
       <section id="channels" className="py-20 px-6 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
+            <div className="flex justify-center mb-5">
+              <InstinctRiseLogo size="lg"/>
+            </div>
             <p className="text-[#E05C1A] font-semibold tracking-widest text-sm uppercase mb-3">Full Marketing Integration</p>
             <h2 className="text-4xl font-extrabold text-[#0a1f44] mb-4">Every Channel You Already Run. Supercharged.</h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-3">
@@ -732,10 +756,8 @@ export default function LandingPage() {
               Different trades can license the same ZIP. But no one in <em>your</em> trade will ever
               compete in your territory. That&apos;s the TerritoryIQ guarantee.
             </p>
-            <a href="#get-started">
-              <button className="bg-[#E05C1A] text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-600 transition">
-                Check Your ZIP Availability →
-              </button>
+            <a href="#get-started" className="inline-block bg-[#E05C1A] text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-600 transition">
+              Check Your ZIP Availability →
             </a>
           </div>
         </div>
@@ -744,89 +766,50 @@ export default function LandingPage() {
       {/* ── Territory Inventory ──────────────────────────────────────── */}
       <section id="territories" className="py-20 px-6 bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <p className="text-[#E05C1A] font-semibold tracking-widest text-sm uppercase mb-3">Live Inventory</p>
-            <h2 className="text-4xl font-extrabold text-[#0a1f44] mb-4">Current Florida Territories</h2>
-            <p className="text-slate-600">Martin County ZIP codes with available exclusive licenses. Once claimed, they&apos;re gone.</p>
+          <div className="text-center mb-12">
+            <p className="text-[#E05C1A] font-semibold tracking-widest text-sm uppercase mb-3">Live Inventory — Martin County, FL</p>
+            <h2 className="text-4xl font-extrabold text-[#0a1f44] mb-4">Available Territories</h2>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              One contractor per trade per ZIP — exclusively. Once a territory is claimed, it&apos;s gone.
+              These are full replacement job pipelines, not shared leads.
+            </p>
           </div>
-          <div className="flex gap-3 justify-center mb-8">
-            {['All', 'Roofing', 'HVAC'].map(f => (
-              <button key={f} onClick={() => setActiveFilter(f)}
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition border ${
-                  activeFilter === f ? 'bg-[#1B3A6B] text-white border-[#1B3A6B]' : 'bg-white text-slate-600 border-slate-300 hover:border-[#1B3A6B]'
-                }`}>{f}</button>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+            {territories.map(t => (
+              <div key={`${t.zip}-${t.trade}`} className={`rounded-2xl border-2 p-5 flex flex-col gap-3 ${t.status === 'Available' ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-200 opacity-50'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-extrabold text-[#1B3A6B]">{t.zip}</div>
+                    <div className={`text-xs font-bold mt-0.5 px-2 py-0.5 rounded-full inline-block ${t.trade === 'Roofing' ? 'bg-orange-100 text-[#E05C1A]' : 'bg-blue-100 text-[#1B3A6B]'}`}>{t.trade}</div>
+                  </div>
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${t.status === 'Available' ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
+                    {t.status === 'Available' ? '✓ Available' : '✗ Claimed'}
+                  </span>
+                </div>
+                {t.status === 'Available' ? (
+                  <a href="#get-started" className="inline-block w-full text-center bg-[#E05C1A] text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-orange-600 transition mt-1">
+                    Claim This Territory →
+                  </a>
+                ) : (
+                  <div className="w-full text-center bg-slate-200 text-slate-400 px-4 py-2.5 rounded-lg text-sm font-bold mt-1">
+                    No Longer Available
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
-          {available.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-              <div className="bg-green-50 px-6 py-3 border-b border-slate-200">
-                <span className="font-semibold text-green-700 text-sm">✓ Available Territories ({available.length})</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                    <tr>
-                      <th className="p-4 font-semibold text-sm">ZIP</th>
-                      <th className="p-4 font-semibold text-sm">Trade</th>
-                      <th className="p-4 font-semibold text-sm">Ready Prospects</th>
-                      <th className="p-4 font-semibold text-sm">Urgency</th>
-                      <th className="p-4 font-semibold text-sm">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {available.map(t => (
-                      <tr key={`${t.zip}-${t.trade}`} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="p-4 font-bold text-[#1B3A6B]">{t.zip}</td>
-                        <td className="p-4">
-                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${t.trade === 'Roofing' ? 'bg-orange-100 text-[#E05C1A]' : 'bg-blue-100 text-[#1B3A6B]'}`}>{t.trade}</span>
-                        </td>
-                        <td className="p-4 font-medium">{t.leads} units</td>
-                        <td className="p-4">
-                          <span className={`text-xs font-bold px-2 py-1 rounded-full ${t.urgency === 'High' ? 'bg-red-100 text-red-700' : t.urgency === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{t.urgency}</span>
-                        </td>
-                        <td className="p-4">
-                          <a href="#get-started">
-                            <button className="bg-[#E05C1A] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-orange-600 transition">Claim →</button>
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {claimed.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden opacity-60">
-              <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
-                <span className="font-semibold text-slate-500 text-sm">✗ Claimed Territories ({claimed.length}) — No longer available</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                    <tr>
-                      <th className="p-4 font-semibold text-sm">ZIP</th>
-                      <th className="p-4 font-semibold text-sm">Trade</th>
-                      <th className="p-4 font-semibold text-sm">Prospects</th>
-                      <th className="p-4 font-semibold text-sm">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {claimed.map(t => (
-                      <tr key={`${t.zip}-${t.trade}`} className="border-b border-slate-100">
-                        <td className="p-4 font-bold text-slate-400">{t.zip}</td>
-                        <td className="p-4 text-slate-400 text-sm">{t.trade}</td>
-                        <td className="p-4 text-slate-400">{t.leads} units</td>
-                        <td className="p-4"><span className="text-xs font-semibold bg-slate-200 text-slate-500 px-2 py-1 rounded-full">Taken</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          <div className="bg-gradient-to-r from-[#0a1f44] to-[#1B3A6B] rounded-2xl p-8 text-white text-center">
+            <p className="text-blue-300 text-sm uppercase tracking-widest font-semibold mb-2">Don&apos;t See Your ZIP?</p>
+            <h3 className="text-2xl font-extrabold mb-3">We&apos;re expanding. Tell us where you operate.</h3>
+            <p className="text-blue-200 max-w-xl mx-auto mb-6">
+              Submit your trade and ZIP below — we&apos;ll confirm availability and reach out within one business day.
+            </p>
+            <a href="#get-started" className="inline-block bg-[#E05C1A] text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-600 transition">
+              Check My ZIP →
+            </a>
+          </div>
         </div>
       </section>
 
