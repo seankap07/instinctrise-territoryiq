@@ -155,18 +155,6 @@ function MarketingWheel() {
   );
 }
 
-// ─── Territory data ───────────────────────────────────────────────────────────
-
-const territories = [
-  { zip: '34990', trade: 'Roofing', status: 'Available' },
-  { zip: '34990', trade: 'HVAC',    status: 'Available' },
-  { zip: '34997', trade: 'Roofing', status: 'Available' },
-  { zip: '34997', trade: 'HVAC',    status: 'Available' },
-  { zip: '33455', trade: 'Roofing', status: 'Available' },
-  { zip: '33455', trade: 'HVAC',    status: 'Available' },
-  { zip: '34994', trade: 'Roofing', status: 'Claimed'   },
-  { zip: '34986', trade: 'HVAC',    status: 'Claimed'   },
-];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -286,7 +274,7 @@ export default function Home() {
           <a href="#how-it-works" className="nav-link">How It Works</a>
           <a href="#channels"     className="nav-link">Channels</a>
           <a href="#tam-market"   className="nav-link">Market</a>
-          <a href="#territories"  className="nav-link">Territories</a>
+          <a href="#get-started"  className="nav-link">Get Started</a>
         </div>
         <a href="#get-started" className="btn-primary" style={{ fontSize: 12, padding: '10px 20px' }}>Claim Your ZIP →</a>
       </nav>
@@ -316,7 +304,7 @@ export default function Home() {
           </p>
 
           <div className="fade-up fade-up-delay-2" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 64 }}>
-            <a href="#territories" className="btn-primary">View Available Territories →</a>
+            <a href="#get-started" className="btn-primary">Claim Your Territory →</a>
             <a href="#how-it-works" className="btn-ghost">How It Works</a>
           </div>
 
@@ -580,22 +568,13 @@ export default function Home() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }} className="grid-2">
             {[
-              { trade: 'Roofing', total: '$120M', perZip: '$4.2M', color: 'var(--orange)',
-                points: ['~6,700 roofs due for replacement annually', 'Avg ticket $15k–$25k', 'Hurricane & saltwater corrosion accelerates cycles', '15-year roof in coastal FL = imminent replacement'] },
-              { trade: 'HVAC',    total: '$84M',  perZip: '$2.9M', color: 'var(--navy)',
-                points: ['~8,400 HVAC systems flagged for replacement/year', 'Avg ticket $8k–$15k', 'Salt-air corrosion + FL heat shortens system life', '10-yr old unit in Martin County = hot prospect'] },
+              { trade: 'Roofing', total: '$120M', color: 'var(--orange)', sub: 'Annual Addressable Revenue' },
+              { trade: 'HVAC',    total: '$84M',  color: 'var(--navy)',   sub: 'Annual Addressable Revenue' },
             ].map(t => (
-              <div key={t.trade} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderTop: `3px solid ${t.color}`, padding: 40, boxShadow: '0 2px 16px rgba(26,47,94,0.05)' }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, letterSpacing: '0.1em', color: t.color, textTransform: 'uppercase', marginBottom: 10 }}>{t.trade}</div>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 60, color: t.color, lineHeight: 1, marginBottom: 4 }}>{t.total}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-light)', marginBottom: 4 }}>Annual Addressable Revenue</div>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--text-mid)', marginBottom: 24 }}>Per-ZIP avg: <strong>{t.perZip}</strong></div>
-                <hr className="divider" style={{ marginBottom: 20 }}/>
-                {t.points.map(pt => (
-                  <div key={pt} style={{ display: 'flex', gap: 10, fontSize: 13, color: 'var(--text-mid)', marginBottom: 8 }}>
-                    <span style={{ color: t.color, flexShrink: 0 }}>▶</span>{pt}
-                  </div>
-                ))}
+              <div key={t.trade} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderTop: `3px solid ${t.color}`, padding: 40, boxShadow: '0 2px 16px rgba(26,47,94,0.05)', textAlign: 'center' }}>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, letterSpacing: '0.1em', color: t.color, textTransform: 'uppercase', marginBottom: 16 }}>{t.trade}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 80, color: t.color, lineHeight: 1, marginBottom: 12 }}>{t.total}</div>
+                <div style={{ fontSize: 14, color: 'var(--text-light)' }}>{t.sub}</div>
               </div>
             ))}
           </div>
@@ -645,57 +624,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TERRITORY INVENTORY ──────────────────────────────────────── */}
-      <section id="territories" style={{ padding: '100px 5%', background: '#fff' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 48, flexWrap: 'wrap', gap: 24 }}>
-            <div>
-              <p className="section-label">Live Inventory</p>
-              <h2 className="headline-lg">Available Territories</h2>
-              <p style={{ color: 'var(--text-mid)', marginTop: 12, fontSize: 15 }}>One contractor per trade per ZIP — exclusively. Once claimed, it&apos;s gone.</p>
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--green)' }}>
-              <span className="live-dot"/>&nbsp;Live availability
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 10 }} className="grid-2">
-            {territories.filter(t => t.status === 'Available').map(t => (
-              <div key={`${t.zip}-${t.trade}`} className="territory-card available" style={{ boxShadow: '0 1px 10px rgba(26,47,94,0.05)' }}>
-                <div>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: 'var(--navy)', lineHeight: 1 }}>{t.zip}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 2 }}>{t.trade}</div>
-                </div>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <span className="badge-available">✓ Available</span>
-                  <a href="#get-started" style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--orange)', textDecoration: 'none', letterSpacing: '0.06em', fontWeight: 600 }}>Claim →</a>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 20 }} className="grid-2">
-            {territories.filter(t => t.status === 'Claimed').map(t => (
-              <div key={`${t.zip}-${t.trade}`} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: 0.55 }}>
-                <div>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: 'var(--navy)', lineHeight: 1 }}>{t.zip}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 2 }}>{t.trade}</div>
-                </div>
-                <span className="badge-claimed">✗ Claimed</span>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '28px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--navy)', marginBottom: 4 }}>Don&apos;t See Your ZIP?</div>
-              <div style={{ fontSize: 13, color: 'var(--text-light)' }}>We&apos;re expanding. Submit your trade and ZIP — we&apos;ll confirm availability within one business day.</div>
-            </div>
-            <a href="#get-started" className="btn-ghost" style={{ padding: '10px 22px', fontSize: 13 }}>Check My ZIP →</a>
           </div>
         </div>
       </section>
