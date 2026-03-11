@@ -1,9 +1,43 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
-// ─── Logo (mp4 → png → SVG fallback) ─────────────────────────────────────────
+const MapComponent = dynamic(() => import('./MapComponent'), { ssr: false });
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+type Trade = 'hvac' | 'roofing';
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const ZIP_DATA: Record<Trade, {
+  zip: string; label: string; total: number;
+  entering: number; critical: number; high: number; medium: number;
+}[]> = {
+  hvac: [
+    { zip: '34997', label: 'Highest HVAC Replacement Density', total: 14750, entering: 1662, critical: 161, high: 694, medium: 807 },
+    { zip: '34990', label: 'Premium Coastal Territory',        total: 12058, entering: 1560, critical: 143, high: 658, medium: 759 },
+    { zip: '33455', label: 'Strong Mid-Market Opportunity',    total: 8108,  entering: 1047, critical: 96,  high: 417, medium: 534 },
+    { zip: '34957', label: 'Focused Install Territory',        total: 6229,  entering: 711,  critical: 67,  high: 298, medium: 346 },
+  ],
+  roofing: [
+    { zip: '34990', label: 'Best Roofing Territory',           total: 12058, entering: 1871, critical: 897, high: 680, medium: 294 },
+    { zip: '34997', label: 'High Replacement Concentration',   total: 14750, entering: 1595, critical: 841, high: 500, medium: 254 },
+    { zip: '33455', label: 'Insurance Cycle Territory',        total: 8108,  entering: 879,  critical: 418, high: 301, medium: 160 },
+    { zip: '34957', label: 'Dense Roofing Opportunity',        total: 6229,  entering: 857,  critical: 488, high: 266, medium: 103 },
+  ],
+};
+
+const CHART_DATA = [
+  { year: 2008, homes: 820  },
+  { year: 2009, homes: 1040 },
+  { year: 2010, homes: 1280 },
+  { year: 2011, homes: 1140 },
+  { year: 2012, homes: 930  },
+];
+
+const CHART_MAX = 1400;
+
+// ─── Logo ─────────────────────────────────────────────────────────────────────
 function InstinctRiseLogo({ height = 44 }: { height?: number }) {
   const [videoFailed, setVideoFailed] = useState(false);
   const [imgFailed,   setImgFailed]   = useState(false);
@@ -32,140 +66,363 @@ function InstinctRiseLogo({ height = 44 }: { height?: number }) {
         <line x1="77" y1="13" x2="81" y2="9"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
         <rect x="5"  y="52" width="12" height="42" rx="1" fill="#1B3A6B"/>
         <rect x="19" y="38" width="14" height="56" rx="1" fill="#163060"/>
-        <rect x="35" y="48" width="10" height="46" rx="1" fill="#1B3A6B"/>
-        <polygon points="40,62 65,42 90,62" fill="#E05C1A"/>
-        <rect x="48" y="62" width="34" height="32" rx="2" fill="#1B3A6B"/>
-        <rect x="58" y="74" width="10" height="20" rx="1" fill="#0f2344"/>
-        <rect x="51" y="66" width="10" height="9"  rx="1" fill="#5b8dd9"/>
-        <rect x="72" y="66" width="8"  height="9"  rx="1" fill="#5b8dd9"/>
-        <path d="M2,96 Q50,86 98,96" stroke="#1B3A6B" strokeWidth="3" fill="none" strokeLinecap="round"/>
+        <rect x="35" y="44" width="14" height="50" rx="1" fill="#1B3A6B"/>
+        <rect x="51" y="32" width="44" height="62" rx="2" fill="#163060"/>
+        <rect x="60" y="60" width="8" height="10" fill="#fff" opacity="0.5"/>
+        <rect x="74" y="60" width="8" height="10" fill="#fff" opacity="0.5"/>
+        <rect x="67" y="74" width="8" height="20" fill="#fff" opacity="0.7"/>
+        <polygon points="48,52 74,38 100,52" fill="#1B3A6B"/>
       </svg>
-      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-        <span style={{ fontWeight: 800, fontSize: height * 0.42, letterSpacing: '-0.02em' }}>
-          <span style={{ color: '#1B3A6B' }}>Instinct</span><span style={{ color: '#E05C1A' }}>Rise</span>
-        </span>
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: height * 0.2, letterSpacing: '0.12em', color: '#1B3A6B', textTransform: 'uppercase' as const }}>
-          TerritoryIQ
-        </span>
-      </div>
+      <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: height * 0.55, letterSpacing: 2, color: '#1B3A6B' }}>
+        InstinctRise
+      </span>
     </div>
   );
 }
 
-// ─── Marketing Wheel ──────────────────────────────────────────────────────────
-
+// ─── Marketing Wheel ─────────────────────────────────────────────────────────
 function MarketingWheel() {
   const cx = 160, cy = 160, outerR = 148, innerR = 68, gap = 3;
-
   const segments = [
-    { label: 'Proactive\nOutreach',  color: '#1B3A6B', icon: 'person'   },
-    { label: 'Storm &\nRouting',     color: '#163060', icon: 'crosshair' },
-    { label: 'Outbound\nChannels',   color: '#112655', icon: 'signal'    },
-    { label: 'Exclusive\nROI',       color: '#0D1D44', icon: 'chart'     },
-    { label: 'Full-Ticket\nValue',   color: '#A33B0C', icon: 'chart'     },
-    { label: 'Inbound\nChannels',    color: '#B84610', icon: 'signal'    },
-    { label: 'Replacement\nFocus',   color: '#CF5218', icon: 'crosshair' },
-    { label: 'Predictive\nData',     color: '#E05C1A', icon: 'person'    },
+    { label: 'Proactive\nOutreach',  color: '#1B3A6B', icon: 'person'    },
+    { label: 'Storm &\nRouting',     color: '#163060', icon: 'crosshair'  },
+    { label: 'Outbound\nChannels',   color: '#112655', icon: 'signal'     },
+    { label: 'Exclusive\nROI',       color: '#0D1D44', icon: 'chart'      },
+    { label: 'Full-Ticket\nValue',   color: '#A33B0C', icon: 'chart'      },
+    { label: 'Inbound\nChannels',    color: '#B84610', icon: 'signal'     },
+    { label: 'Replacement\nFocus',   color: '#CF5218', icon: 'crosshair'  },
+    { label: 'Predictive\nData',     color: '#E05C1A', icon: 'person'     },
   ];
+  const n = segments.length;
+  const step = (2 * Math.PI) / n;
 
-  function polarToCart(a: number, r: number) {
-    const rad = (a * Math.PI) / 180;
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-  }
+  const polarToCart = (r: number, angle: number) => ({
+    x: cx + r * Math.cos(angle),
+    y: cy + r * Math.sin(angle),
+  });
 
-  function segPath(s: number, e: number) {
-    const s1 = polarToCart(s + gap / 2, innerR), s2 = polarToCart(s + gap / 2, outerR);
-    const e1 = polarToCart(e - gap / 2, outerR), e2 = polarToCart(e - gap / 2, innerR);
-    return `M${s1.x},${s1.y} L${s2.x},${s2.y} A${outerR},${outerR} 0 0,1 ${e1.x},${e1.y} L${e2.x},${e2.y} A${innerR},${innerR} 0 0,0 ${s1.x},${s1.y} Z`;
-  }
+  const segPath = (i: number) => {
+    const a0 = step * i - Math.PI / 2 + gap / outerR;
+    const a1 = step * (i + 1) - Math.PI / 2 - gap / outerR;
+    const o0 = polarToCart(outerR, a0), o1 = polarToCart(outerR, a1);
+    const i0 = polarToCart(innerR, a0), i1 = polarToCart(innerR, a1);
+    return `M${i0.x},${i0.y} L${o0.x},${o0.y} A${outerR},${outerR} 0 0,1 ${o1.x},${o1.y} L${i1.x},${i1.y} A${innerR},${innerR} 0 0,0 ${i0.x},${i0.y}Z`;
+  };
 
-  function SegIcon({ type }: { type: string }) {
-    const sw = 1.3;
-    if (type === 'person') return (<>
-      <circle r="3.5" fill="white"/>
-      <path d="M-5,4.5 C-5,11 -3,12 0,12 C3,12 5,11 5,4.5 Z" fill="white"/>
-      <line x1="-9" y1="3" x2="-5.5" y2="3" stroke="white" strokeWidth={sw} strokeLinecap="round"/>
-      <polygon points="-5.5,1.5 -5.5,4.5 -3,3" fill="white"/>
-      <line x1="5.5" y1="3" x2="9" y2="3" stroke="white" strokeWidth={sw} strokeLinecap="round"/>
-      <polygon points="5.5,1.5 5.5,4.5 8,3" fill="white"/>
-    </>);
-    if (type === 'crosshair') return (<>
-      <circle r="7" fill="none" stroke="white" strokeWidth={sw}/>
-      <circle r="2" fill="white"/>
-      <line x1="-11" y1="0" x2="-8"  y2="0"  stroke="white" strokeWidth={sw}/>
-      <line x1="8"   y1="0" x2="11"  y2="0"  stroke="white" strokeWidth={sw}/>
-      <line x1="0"   y1="-11" x2="0" y2="-8" stroke="white" strokeWidth={sw}/>
-      <line x1="0"   y1="8"   x2="0" y2="11" stroke="white" strokeWidth={sw}/>
-    </>);
-    if (type === 'signal') return (<>
-      <path d="M-10,-2 Q0,-14 10,-2" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
-      <path d="M-6,4 Q0,-3 6,4"      fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
-      <circle r="2.5" cy="9" fill="white"/>
-    </>);
-    return (<>
-      <rect x="-9" y="1"  width="5" height="8"  rx="0.5" fill="white" opacity="0.8"/>
-      <rect x="-2" y="-3" width="5" height="12" rx="0.5" fill="white"/>
-      <rect x="5"  y="-8" width="5" height="17" rx="0.5" fill="white" opacity="0.8"/>
-    </>);
-  }
+  const SegIcon = ({ type, x, y }: { type: string; x: number; y: number }) => {
+    const s = 11;
+    if (type === 'person')    return <ellipse cx={x} cy={y} rx={s * 0.4} ry={s * 0.55} fill="none" stroke="#fff" strokeWidth="1.6"/>;
+    if (type === 'crosshair') return (<g><circle cx={x} cy={y} r={s * 0.55} fill="none" stroke="#fff" strokeWidth="1.6"/><line x1={x - s * 0.55} y1={y} x2={x + s * 0.55} y2={y} stroke="#fff" strokeWidth="1.6"/><line x1={x} y1={y - s * 0.55} x2={x} y2={y + s * 0.55} stroke="#fff" strokeWidth="1.6"/></g>);
+    if (type === 'signal')    return (<g><rect x={x-s*.55} y={y-s*.1} width={s*.3} height={s*.55} rx="1" fill="#fff"/><rect x={x-s*.15} y={y-s*.4} width={s*.3} height={s*.85} rx="1" fill="#fff"/><rect x={x+s*.25} y={y-s*.7} width={s*.3} height={s*1.15} rx="1" fill="#fff"/></g>);
+    return (<g><polyline points={`${x-s*.5},${y+s*.3} ${x-s*.15},${y-s*.3} ${x+s*.15},${y+s*.1} ${x+s*.5},${y-s*.5}`} fill="none" stroke="#fff" strokeWidth="1.6"/></g>);
+  };
 
   return (
-    <svg viewBox="0 0 320 320" style={{ width: '100%', maxWidth: 320, filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.12))' }}>
+    <svg width={320} height={320} viewBox="0 0 320 320" style={{ maxWidth: '100%' }}>
       {segments.map((seg, i) => {
-        const start = -90 + i * 45, end = start + 45, mid = start + 22.5;
-        const lr = (innerR + outerR) / 2, lp = polarToCart(mid, lr);
+        const midAngle = step * i + step / 2 - Math.PI / 2;
+        const midR = (outerR + innerR) / 2;
+        const iconX = cx + midR * Math.cos(midAngle);
+        const iconY = cy + midR * Math.sin(midAngle);
+        const labelR = outerR + 18;
+        const lx = cx + labelR * Math.cos(midAngle);
+        const ly = cy + labelR * Math.sin(midAngle);
+        const lines = seg.label.split('\n');
         return (
           <g key={i}>
-            <path d={segPath(start, end)} fill={seg.color}/>
-            <g transform={`rotate(${mid + 90}, ${lp.x}, ${lp.y})`}>
-              <g transform={`translate(${lp.x}, ${lp.y - 11})`}><SegIcon type={seg.icon}/></g>
-              {seg.label.split('\n').map((ln, li) => (
-                <text key={li} x={lp.x} y={lp.y + 8 + li * 10}
-                  textAnchor="middle" dominantBaseline="middle"
-                  fontSize="7.5" fontWeight="700" fill="white">{ln}</text>
-              ))}
-            </g>
+            <path d={segPath(i)} fill={seg.color}/>
+            <SegIcon type={seg.icon} x={iconX} y={iconY}/>
+            <text x={lx} y={ly - (lines.length - 1) * 6} textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="DM Sans,sans-serif" fontWeight="500">
+              {lines.map((l, j) => <tspan key={j} x={lx} dy={j === 0 ? 0 : 13}>{l}</tspan>)}
+            </text>
           </g>
         );
       })}
-      {/* Inner circle */}
-      <circle cx={cx} cy={cy} r={innerR} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
-      {/* Mini logo in center */}
-      <g transform="translate(125 108) scale(0.7)">
-        <circle cx="63" cy="27" r="14" fill="#F5A623"/>
-        <line x1="63" y1="7"  x2="63" y2="1"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
-        <line x1="63" y1="47" x2="63" y2="53" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
-        <line x1="43" y1="27" x2="37" y2="27" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
-        <line x1="83" y1="27" x2="89" y2="27" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
-        <polygon points="10,60 50,30 90,60" fill="#E05C1A"/>
-        <rect x="18" y="60" width="64" height="34" rx="2" fill="#1B3A6B"/>
-        <rect x="40" y="74" width="16" height="20" rx="2" fill="#0f2344"/>
-        <rect x="22" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
-        <rect x="60" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
-      </g>
-      <text x={cx} y={cy + 44} textAnchor="middle" fontSize="9.5" fontWeight="800" fill="#1B3A6B">TerritoryIQ</text>
-      <text x={cx} y={cy + 56} textAnchor="middle" fontSize="7" fill="#94a3b8">1 Trade · 1 ZIP</text>
-      {/* Dashed center divider */}
-      <line x1={cx} y1={6} x2={cx} y2={314} stroke="#d1d5db" strokeWidth="1" strokeDasharray="4,4"/>
-      <circle cx={cx} cy={cy - outerR - 6}  r="3.5" fill="#E05C1A" opacity="0.65"/>
-      <circle cx={cx} cy={cy - outerR - 16} r="2.5" fill="#E05C1A" opacity="0.4"/>
-      <circle cx={cx} cy={cy + outerR + 6}  r="3.5" fill="#1B3A6B" opacity="0.65"/>
-      <circle cx={cx} cy={cy + outerR + 16} r="2.5" fill="#1B3A6B" opacity="0.4"/>
+      <circle cx={cx} cy={cy} r={innerR - 4} fill="#fff"/>
+      <circle cx={cx} cy={cy} r={innerR - 12} fill="#f8f9fa" stroke="#e5e7eb" strokeWidth="1"/>
+      <line x1={cx} y1={cy - innerR + 4} x2={cx} y2={cy + innerR - 4} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="3,3"/>
+      <text x={cx} y={cy - 8} textAnchor="middle" fontSize="8" fill="#1B3A6B" fontFamily="DM Sans,sans-serif" fontWeight="700">TerritoryIQ</text>
+      <text x={cx} y={cy + 4} textAnchor="middle" fontSize="6.5" fill="#9ca3af" fontFamily="DM Sans,sans-serif">Intelligence</text>
+      <text x={cx} y={cy + 14} textAnchor="middle" fontSize="6.5" fill="#9ca3af" fontFamily="DM Sans,sans-serif">Engine</text>
     </svg>
   );
 }
 
+// ─── CSS ──────────────────────────────────────────────────────────────────────
+const CSS = `
+  :root {
+    --orange: #E05C1A;
+    --navy:   #1B3A6B;
+    --gold:   #F5A623;
+    --bg:     #ffffff;
+    --bg-2:   #f5f7fb;
+    --bg-3:   #eef1f7;
+    --border: #e2e6ef;
+    --text:   #111827;
+    --muted:  #6b7280;
+    --radius: 0px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); overflow-x: hidden; }
+
+  /* Nav */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.97);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 24px;
+    height: 64px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .2s; }
+  .nav-links a:hover { color: var(--navy); }
+  .nav-cta {
+    background: var(--orange); color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.5px;
+    padding: 10px 20px;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transition: background .2s;
+  }
+  .nav-cta:hover { background: #c44c12; }
+
+  /* Sections */
+  section { padding: 96px 24px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 2.5px; text-transform: uppercase; color: var(--orange);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.05; color: var(--navy); margin-bottom: 20px;
+  }
+  .section-body { font-size: 17px; line-height: 1.7; color: var(--muted); max-width: 640px; }
+
+  /* Hero */
+  .hero {
+    padding-top: 140px; padding-bottom: 100px;
+    background: linear-gradient(165deg, #ffffff 0%, #f0f4fb 60%, #e8edf8 100%);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(27,58,107,0.04) 39px, rgba(27,58,107,0.04) 40px),
+                      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(27,58,107,0.04) 39px, rgba(27,58,107,0.04) 40px);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--orange); font-weight: 500;
+    border: 1px solid rgba(224,92,26,0.3); padding: 6px 16px;
+    margin-bottom: 28px; background: rgba(224,92,26,0.05);
+  }
+  .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .hero-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 88px); line-height: 1.0;
+    color: var(--navy); margin-bottom: 24px;
+  }
+  .hero-headline span { color: var(--orange); }
+  .hero-sub { font-size: 19px; line-height: 1.65; color: #374151; max-width: 580px; margin-bottom: 32px; }
+  .hero-bullets { list-style: none; margin-bottom: 40px; display: flex; flex-direction: column; gap: 10px; }
+  .hero-bullets li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #374151; }
+  .hero-bullets li::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); margin-top: 7px; flex-shrink: 0; }
+  .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--orange); color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 15px;
+    padding: 14px 28px; letter-spacing: 0.3px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    transition: background .2s, transform .15s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: #c44c12; transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent; color: var(--navy); border: 2px solid var(--navy);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px;
+    padding: 12px 28px; transition: background .2s, color .2s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { background: var(--navy); color: #fff; }
+  .hero-stats { display: flex; gap: 40px; margin-top: 52px; padding-top: 40px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .hero-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--navy); line-height: 1; }
+  .hero-stat-val span { color: var(--orange); }
+  .hero-stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
+
+  /* Toggle */
+  .trade-toggle { display: flex; gap: 0; border: 2px solid var(--navy); overflow: hidden; width: fit-content; }
+  .trade-toggle button {
+    padding: 10px 28px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px;
+    border: none; cursor: pointer; transition: background .2s, color .2s;
+    letter-spacing: 0.5px;
+  }
+  .trade-toggle button.active-hvac   { background: var(--navy); color: #fff; }
+  .trade-toggle button.active-roofing { background: var(--orange); color: #fff; }
+  .trade-toggle button:not([class*=active]) { background: transparent; color: var(--muted); }
+
+  /* ZIP Cards */
+  .zip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 32px; }
+  .zip-card {
+    background: #fff; border: 1px solid var(--border); padding: 24px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    transition: box-shadow .2s, transform .2s;
+  }
+  .zip-card:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .zip-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--stripe-color, var(--orange));
+  }
+  .zip-code { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .zip-label-text { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .zip-stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--bg-2); }
+  .zip-stat-row:last-child { border-bottom: none; }
+  .zip-stat-key { font-size: 12px; color: var(--muted); }
+  .zip-stat-val { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 600; }
+  .zip-entering { font-family: 'Bebas Neue', sans-serif; font-size: 38px; line-height: 1; margin: 12px 0 4px; }
+  .zip-entering-label { font-size: 11px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+
+  /* Chart */
+  .chart-wrap { background: #fff; border: 1px solid var(--border); padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+  .chart-svg { width: 100%; overflow: visible; }
+  .chart-highlight {
+    background: linear-gradient(135deg, var(--navy) 0%, #163060 100%);
+    color: #fff; padding: 20px 28px; margin-top: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .chart-highlight-text { font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .chart-arrow { font-size: 24px; flex-shrink: 0; }
+
+  /* Map */
+  .map-wrap {
+    height: 440px; border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden; position: relative;
+  }
+  .map-note { font-size: 13px; color: var(--muted); margin-top: 16px; line-height: 1.5; }
+
+  /* Meaning cards */
+  .meaning-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 40px; }
+  .meaning-card {
+    background: #fff; border: 1px solid var(--border); padding: 28px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); position: relative;
+  }
+  .meaning-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--m-color, var(--orange));
+  }
+  .meaning-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); margin-bottom: 12px; }
+  .meaning-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* Steps */
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-top: 40px; }
+  .step-card {
+    background: #fff; border: 1px solid var(--border); padding: 36px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04); position: relative;
+  }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 72px; line-height: 1;
+    color: var(--bg-3); position: absolute; top: 12px; right: 20px;
+  }
+  .step-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; }
+  .step-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--navy); margin-bottom: 12px; }
+  .step-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* Compare */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+  .compare-card { padding: 36px 32px; }
+  .compare-card.bad  { background: var(--bg-2); border: 1px solid var(--border); }
+  .compare-card.good { background: var(--navy); }
+  .compare-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px; margin-bottom: 24px;
+    padding-bottom: 16px; border-bottom: 2px solid;
+  }
+  .compare-card.bad  .compare-title { color: var(--muted); border-color: var(--border); }
+  .compare-card.good .compare-title { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .compare-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; font-size: 15px; }
+  .compare-card.bad  .compare-item { color: #6b7280; }
+  .compare-card.good .compare-item { color: rgba(255,255,255,0.9); }
+  .compare-icon { font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+
+  /* Channels section */
+  .channels-tabs { display: flex; gap: 0; border: 2px solid var(--border); overflow: hidden; width: fit-content; margin-bottom: 32px; }
+  .channels-tabs button {
+    padding: 10px 28px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
+    border: none; cursor: pointer; background: transparent; color: var(--muted); transition: all .2s;
+  }
+  .channels-tabs button.active { background: var(--navy); color: #fff; }
+  .channel-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .channel-item:last-child { border-bottom: none; }
+  .channel-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .channel-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .channel-desc { font-size: 13px; color: var(--muted); }
+
+  /* TAM */
+  .tam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+  .tam-card { padding: 40px 32px; background: #fff; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+  .tam-trade { font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .tam-total { font-family: 'Bebas Neue', sans-serif; font-size: 80px; line-height: 1; margin-bottom: 8px; }
+  .tam-sub { font-size: 13px; color: var(--muted); letter-spacing: 0.5px; }
+  .tam-total-box { background: var(--navy); padding: 32px; text-align: center; margin-top: 24px; }
+  .tam-total-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+  .tam-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 56px; color: #fff; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-field label { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; color: var(--navy); text-transform: uppercase; }
+  .form-field input, .form-field select, .form-field textarea {
+    border: 1px solid var(--border); padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 15px;
+    background: #fff; color: var(--text); outline: none; transition: border-color .2s;
+  }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--orange); }
+  .form-full { grid-column: 1/-1; }
+
+  /* Footer */
+  .footer { background: var(--navy); padding: 48px 24px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+  .footer-copy { font-size: 13px; color: rgba(255,255,255,0.5); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color .2s; }
+  .footer-links a:hover { color: #fff; }
+
+  /* Misc */
+  .divider { height: 1px; background: var(--border); }
+  .bg-2 { background: var(--bg-2); }
+  .bg-navy { background: var(--navy); }
+  .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0; }
+
+  @media (max-width: 768px) {
+    section { padding: 64px 20px; }
+    .nav-links { display: none; }
+    .hero-stats { gap: 24px; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .tam-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .zip-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+  }
+`;
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'inbound' | 'outbound'>('inbound');
-  const [formData, setFormData]   = useState({
+  const [activeTrade, setActiveTrade] = useState<Trade>('hvac');
+  const [mapTrade,    setMapTrade]    = useState<Trade>('hvac');
+  const [activeTab,   setActiveTab]   = useState<'inbound' | 'outbound'>('inbound');
+  const [formData, setFormData] = useState({
     businessName: '', contactName: '', phone: '', email: '',
     trade: '', zip: '', bestTime: '', notes: '',
   });
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading]     = useState(false);
+  const [loading,   setLoading]   = useState(false);
 
   const handleSubmit = async () => {
     if (!formData.businessName || !formData.phone || !formData.trade || !formData.zip) return;
@@ -181,197 +438,430 @@ export default function Home() {
     setSubmitted(true);
   };
 
+  const field = (key: keyof typeof formData) => ({
+    value: formData[key],
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setFormData(p => ({ ...p, [key]: e.target.value })),
+  });
+
+  // Chart dimensions
+  const chartW = 600, chartH = 180, padL = 50, padB = 36, padT = 10, padR = 20;
+  const innerW = chartW - padL - padR;
+  const innerH = chartH - padB - padT;
+  const barW = innerW / CHART_DATA.length * 0.55;
+  const barGap = innerW / CHART_DATA.length;
+
+  const inboundChannels = [
+    { name: 'Homeowner Targeting', desc: 'Direct mail and digital targeting to owners of aging systems.' },
+    { name: 'Replacement Cycle Ads', desc: 'Geo-targeted campaigns timed to lifecycle windows.' },
+    { name: 'Community Presence', desc: 'Neighborhood brand positioning in high-density zones.' },
+    { name: 'Referral Networks', desc: 'Structured referral capture within exclusive territories.' },
+  ];
+  const outboundChannels = [
+    { name: 'Proactive Outreach',  desc: 'Direct contact with homeowners approaching replacement age.' },
+    { name: 'Storm & Event Routing', desc: 'Rapid deployment into territories after weather events.' },
+    { name: 'Door-to-Door Sequencing', desc: 'Strategic canvassing in ZIP corridors with highest density.' },
+    { name: 'B2B Ecosystem Tie-ins', desc: 'Alignment with local property managers and realtors.' },
+  ];
+
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#ffffff', color: '#1a2f5e', minHeight: '100vh', overflowX: 'hidden' }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-          --orange: #e8611a; --orange-light: #f0824a; --orange-dark: #c44e10;
-          --navy: #1a2f5e; --navy-dark: #0f1e3d;
-          --bg: #ffffff; --bg-2: #f5f7fb; --bg-3: #eaecf4;
-          --text: #1a2f5e; --text-mid: #3d5080; --text-light: #6b7fa8; --text-muted: #9aaabf;
-          --green: #10b981; --red: #ef4444;
-          --border: rgba(26,47,94,0.1); --border-mid: rgba(26,47,94,0.18);
-        }
-        html { scroll-behavior: smooth; }
+    <>
+      <style dangerouslySetInnerHTML={{ __html: CSS }}/>
 
-        .nav-link { color: var(--text-mid); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.2s; }
-        .nav-link:hover { color: var(--orange); }
-
-        .btn-primary { background: var(--orange); color: #fff; border: none; padding: 14px 28px; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
-        .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,97,26,0.3); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .btn-ghost { background: transparent; color: var(--navy); border: 2px solid var(--navy); padding: 12px 28px; font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
-        .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
-
-        .section-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--orange); display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-        .section-label::before { content: ''; display: block; width: 24px; height: 2px; background: var(--orange); flex-shrink: 0; }
-
-        .headline-xl { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 9vw, 116px); line-height: 0.9; letter-spacing: 0.01em; color: var(--navy); }
-        .headline-lg { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 5vw, 62px); line-height: 0.95; letter-spacing: 0.01em; color: var(--navy); }
-        .stat-number  { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 4vw, 52px); color: var(--orange); line-height: 1; }
-
-        .card { background: var(--bg-2); border: 1px solid var(--border); padding: 28px; position: relative; transition: all 0.25s; }
-        .card:hover { border-color: rgba(232,97,26,0.4); box-shadow: 0 4px 20px rgba(232,97,26,0.08); }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--orange); opacity: 0; transition: opacity 0.25s; }
-        .card:hover::before { opacity: 1; }
-
-        .territory-card { background: var(--bg); border: 1px solid var(--border); padding: 24px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; }
-        .territory-card.available:hover { border-color: var(--green); background: rgba(16,185,129,0.03); }
-
-        .badge-available { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.3); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; padding: 4px 10px; text-transform: uppercase; }
-        .badge-claimed   { background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.2); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; padding: 4px 10px; text-transform: uppercase; }
-
-        .divider { border: none; border-top: 1px solid var(--border); }
-
-        .input-field { background: var(--bg); border: 1.5px solid var(--border-mid); color: var(--text); padding: 14px 16px; font-family: inherit; font-size: 14px; width: 100%; outline: none; transition: border-color 0.2s; }
-        .input-field:focus { border-color: var(--orange); }
-        .input-field::placeholder { color: var(--text-muted); }
-        select.input-field option { background: #fff; color: var(--text); }
-
-        .tab-btn { padding: 10px 24px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border: 1.5px solid var(--border-mid); background: transparent; color: var(--text-light); transition: all 0.2s; }
-        .tab-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
-
-        .grid-overlay { background-image: linear-gradient(rgba(26,47,94,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(26,47,94,0.04) 1px, transparent 1px); background-size: 60px 60px; }
-        .orange-glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(232,97,26,0.08) 0%, transparent 70%); pointer-events: none; }
-
-        .vs-divider { display: flex; align-items: center; gap: 16px; margin: 20px 0; }
-        .vs-divider::before, .vs-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-        .vs-label { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--orange); letter-spacing: 0.1em; }
-
-        .channel-pill { background: var(--bg-3); border: 1px solid var(--border); padding: 7px 14px; font-size: 12px; font-weight: 500; color: var(--text-mid); display: inline-flex; align-items: center; white-space: nowrap; }
-
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-up         { animation: fadeUp 0.7s ease forwards; }
-        .fade-up-delay-1 { animation-delay: 0.15s; opacity: 0; animation-fill-mode: forwards; }
-        .fade-up-delay-2 { animation-delay: 0.3s;  opacity: 0; animation-fill-mode: forwards; }
-        .fade-up-delay-3 { animation-delay: 0.45s; opacity: 0; animation-fill-mode: forwards; }
-
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse-dot 2s ease infinite; flex-shrink: 0; }
-
-        @media (max-width: 768px) {
-          .hide-mobile  { display: none !important; }
-          .stack-mobile { flex-direction: column !important; }
-          .grid-2       { grid-template-columns: 1fr !important; }
-          .grid-3       { grid-template-columns: 1fr !important; }
-          .grid-4       { grid-template-columns: 1fr 1fr !important; }
-        }
-      `}</style>
-
-      {/* ── NAV ─────────────────────────────────────────────────────── */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border)', padding: '0 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, boxShadow: '0 1px 24px rgba(26,47,94,0.07)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {/* ── NAV ────────────────────────────────────────────────────────── */}
+      <nav className="nav">
+        <div className="nav-inner">
           <InstinctRiseLogo height={44}/>
-          <div style={{ width: 1, height: 28, background: 'var(--border-mid)' }} className="hide-mobile"/>
-          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.1em', textTransform: 'uppercase' }} className="hide-mobile">
-            Territory<span style={{ color: 'var(--orange)' }}>IQ</span>
-          </span>
+          <div className="nav-links">
+            <a href="#opportunities">ZIP Opportunities</a>
+            <a href="#map">Territory Map</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#get-started">Get Started</a>
+          </div>
+          <button className="nav-cta" onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}>
+            Claim Territory
+          </button>
         </div>
-        <div style={{ display: 'flex', gap: 32, alignItems: 'center' }} className="hide-mobile">
-          <a href="#how-it-works" className="nav-link">How It Works</a>
-          <a href="#channels"     className="nav-link">Channels</a>
-          <a href="#tam-market"   className="nav-link">Market</a>
-          <a href="#get-started"  className="nav-link">Get Started</a>
-        </div>
-        <a href="#get-started" className="btn-primary" style={{ fontSize: 12, padding: '10px 20px' }}>Claim Your ZIP →</a>
       </nav>
 
-      {/* ── HERO ────────────────────────────────────────────────────── */}
-      <section className="grid-overlay" style={{ paddingTop: 140, paddingBottom: 100, paddingLeft: '5%', paddingRight: '5%', position: 'relative', overflow: 'hidden', minHeight: '90vh', display: 'flex', alignItems: 'center', background: 'linear-gradient(155deg, #ffffff 0%, #f0f4fb 100%)' }}>
-        <div className="orange-glow" style={{ width: 700, height: 700, top: -200, right: -150 }}/>
-        <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
-
-          <div style={{ marginBottom: 32 }}>
-            <span style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)', fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: '0.12em', padding: '6px 14px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <span className="live-dot"/>&nbsp;Live Territories Available
-            </span>
+      {/* ── HERO ───────────────────────────────────────────────────────── */}
+      <section className="hero" id="home">
+        <div className="container">
+          <div className="hero-badge">
+            <span className="hero-badge-dot"/>
+            Exclusive Territory Intelligence — Treasure Coast, FL
           </div>
-
-          <h1 className="headline-xl fade-up" style={{ maxWidth: 920 }}>
-            Stop Fighting<br/>
-            <span style={{ color: 'var(--orange)' }}>3–5 Competitors.</span><br/>
-            Own Your Market.
+          <h1 className="hero-headline">
+            Stop Fighting<br/>Shared Leads.<br/><span>Own the Territory</span><br/>Instead.
           </h1>
-
-          <p className="fade-up fade-up-delay-1" style={{ fontSize: 18, color: 'var(--text-mid)', maxWidth: 560, lineHeight: 1.75, marginTop: 28, marginBottom: 16 }}>
-            We use <strong style={{ color: 'var(--navy)' }}>proprietary data to predict roof and HVAC replacements</strong> before the homeowner starts calling around. One contractor. One trade. One ZIP. You reach them first.
+          <p className="hero-sub">
+            TerritoryIQ identifies the homes in your ZIP already entering roof and HVAC
+            replacement cycles — before competitors start bidding.
           </p>
-          <p className="fade-up fade-up-delay-1" style={{ fontSize: 15, color: 'var(--text-light)', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>
-            These are full replacement jobs — $15k–$25k roofing, $8k–$15k HVAC. Not service calls. Not shared leads. <strong style={{ color: 'var(--navy)' }}>One job pays for itself.</strong>
+          <ul className="hero-bullets">
+            <li>Exclusive by trade, exclusive by ZIP</li>
+            <li>Full-ticket replacement jobs, not service calls</li>
+            <li>Replacement-cycle intelligence built from housing lifecycle data</li>
+          </ul>
+          <div className="hero-ctas">
+            <a href="#opportunities" className="btn-primary">
+              View Live ZIP Opportunities →
+            </a>
+            <a href="#how-it-works" className="btn-secondary">
+              How TerritoryIQ Works
+            </a>
+          </div>
+          <div className="hero-stats">
+            <div>
+              <div className="hero-stat-val">$<span>204</span>M</div>
+              <div className="hero-stat-label">Total Addressable Revenue</div>
+            </div>
+            <div>
+              <div className="hero-stat-val"><span>1</span></div>
+              <div className="hero-stat-label">Contractor Per Trade Per ZIP</div>
+            </div>
+            <div>
+              <div className="hero-stat-val"><span>4</span></div>
+              <div className="hero-stat-label">Priority ZIPs Available Now</div>
+            </div>
+            <div>
+              <div className="hero-stat-val"><span>5,900</span>+</div>
+              <div className="hero-stat-label">Homes Entering Replacement Cycle</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TOP ZIP OPPORTUNITIES ──────────────────────────────────────── */}
+      <section id="opportunities" className="bg-2">
+        <div className="container">
+          <div className="section-label">Live Territory Intelligence</div>
+          <h2 className="section-title">Top ZIP Opportunities</h2>
+          <p className="section-body">
+            TerritoryIQ analyzes housing infrastructure by ZIP to identify where roof and HVAC
+            systems are entering replacement cycles. These territories represent the highest
+            concentration of replacement-ready homes.
           </p>
 
-          <div className="fade-up fade-up-delay-2" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 64 }}>
-            <a href="#get-started" className="btn-primary">Claim Your Territory →</a>
-            <a href="#how-it-works" className="btn-ghost">How It Works</a>
+          <div style={{ marginTop: 32 }}>
+            <div className="trade-toggle">
+              <button
+                className={activeTrade === 'hvac' ? 'active-hvac' : ''}
+                onClick={() => setActiveTrade('hvac')}
+              >
+                HVAC
+              </button>
+              <button
+                className={activeTrade === 'roofing' ? 'active-roofing' : ''}
+                onClick={() => setActiveTrade('roofing')}
+              >
+                Roofing
+              </button>
+            </div>
           </div>
 
-          <div className="fade-up fade-up-delay-3 hide-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0, border: '1px solid var(--border-mid)', background: 'var(--border)' }}>
-            {[
-              { number: '1',     label: 'Contractor per trade per ZIP' },
-              { number: '70%',   label: 'Less driving time' },
-              { number: '30%',   label: 'Lower acquisition cost' },
-              { number: '1 job', label: 'Pays for your entire year of TerritoryIQ' },
-            ].map((s, i) => (
-              <div key={s.label} style={{ background: '#fff', padding: '24px 28px', borderRight: i < 3 ? '1px solid var(--border)' : 'none' }}>
-                <div className="stat-number">{s.number}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 4, fontFamily: "'DM Mono', monospace", letterSpacing: '0.04em' }}>{s.label}</div>
+          <div className="zip-grid">
+            {ZIP_DATA[activeTrade].map((z, i) => (
+              <div
+                key={z.zip}
+                className="zip-card"
+                style={{ '--stripe-color': activeTrade === 'hvac' ? 'var(--navy)' : 'var(--orange)' } as React.CSSProperties}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <div>
+                    <div className="zip-code">{z.zip}</div>
+                    <div className="zip-label-text">{z.label}</div>
+                  </div>
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700,
+                    background: i === 0 ? (activeTrade === 'hvac' ? 'var(--navy)' : 'var(--orange)') : 'var(--bg-3)',
+                    color: i === 0 ? '#fff' : 'var(--muted)',
+                    padding: '4px 10px', letterSpacing: 1,
+                  }}>
+                    #{i + 1}
+                  </div>
+                </div>
+
+                <div className="zip-entering" style={{ color: activeTrade === 'hvac' ? 'var(--navy)' : 'var(--orange)' }}>
+                  {z.entering.toLocaleString()}
+                </div>
+                <div className="zip-entering-label">Entering Replacement Cycle</div>
+
+                <div style={{ marginTop: 20 }}>
+                  <div className="zip-stat-row">
+                    <span className="zip-stat-key">Total Homes Analyzed</span>
+                    <span className="zip-stat-val">{z.total.toLocaleString()}</span>
+                  </div>
+                  <div className="zip-stat-row">
+                    <span className="zip-stat-key" style={{ color: '#dc2626' }}>Critical</span>
+                    <span className="zip-stat-val" style={{ color: '#dc2626' }}>{z.critical.toLocaleString()}</span>
+                  </div>
+                  <div className="zip-stat-row">
+                    <span className="zip-stat-key" style={{ color: '#d97706' }}>High</span>
+                    <span className="zip-stat-val" style={{ color: '#d97706' }}>{z.high.toLocaleString()}</span>
+                  </div>
+                  <div className="zip-stat-row">
+                    <span className="zip-stat-key" style={{ color: '#6b7280' }}>Medium</span>
+                    <span className="zip-stat-val">{z.medium.toLocaleString()}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── PROBLEM ─────────────────────────────────────────────────── */}
-      <section style={{ padding: '100px 5%', background: '#fff' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="grid-2">
-
+      {/* ── REPLACEMENT CYCLE VISUALIZATION ───────────────────────────── */}
+      <section id="cycle">
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
             <div>
-              <p className="section-label">The Problem</p>
-              <h2 className="headline-lg" style={{ marginBottom: 24 }}>Four Trucks.<br/>One Roof Call.</h2>
-              <p style={{ color: 'var(--text-mid)', lineHeight: 1.8, fontSize: 16, marginBottom: 32 }}>
-                Platforms like Angi and HomeAdvisor sell the same lead to 3–5 contractors simultaneously. You slash your price to win. So does everyone else. The homeowner picks the lowest bidder.
+              <div className="section-label">Infrastructure Lifecycle Modeling</div>
+              <h2 className="section-title">Replacement Cycles Are Predictable</h2>
+              <p style={{ fontSize: 16, lineHeight: 1.7, color: 'var(--muted)', marginBottom: 20 }}>
+                Every home follows an infrastructure lifecycle. TerritoryIQ analyzes installation
+                history and housing infrastructure data to model when HVAC systems and roofs begin
+                entering replacement windows.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  { icon: '⚔️', title: 'Bidding War Chaos',       desc: 'You slash your price. So does everyone else. Lowest bidder wins — not the most professional.' },
-                  { icon: '💸', title: 'Eroded Margins',           desc: '$80–$400 per lead that goes to 3 others simultaneously. You pay for the privilege of losing.' },
-                  { icon: '🔄', title: 'Reactive, Not Predictive', desc: 'Emergency calls mean cheap and fast — not the high-ticket planned replacement.' },
-                ].map(p => (
-                  <div key={p.title} style={{ display: 'flex', gap: 16, padding: 20, background: 'var(--bg-2)', border: '1px solid var(--border)' }}>
-                    <span style={{ fontSize: 20 }}>{p.icon}</span>
+              <p style={{ fontSize: 16, lineHeight: 1.7, color: 'var(--muted)' }}>
+                Contractors using TerritoryIQ focus on neighborhoods where those cycles are already
+                active — not where emergencies happen to strike.
+              </p>
+            </div>
+            <div>
+              <div className="chart-wrap">
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 20 }}>
+                  Homes Approaching Replacement Cycle
+                </div>
+                <svg
+                  className="chart-svg"
+                  viewBox={`0 0 ${chartW} ${chartH}`}
+                  aria-label="Bar chart showing homes approaching replacement cycle by year"
+                >
+                  {/* Y-axis gridlines */}
+                  {[0, 0.25, 0.5, 0.75, 1].map(t => {
+                    const y = padT + innerH - t * innerH;
+                    return (
+                      <g key={t}>
+                        <line x1={padL} y1={y} x2={padL + innerW} y2={y} stroke="#e5e7eb" strokeWidth="1"/>
+                        <text x={padL - 8} y={y + 4} textAnchor="end" fontSize="10" fill="#9ca3af" fontFamily="DM Sans,sans-serif">
+                          {Math.round(t * CHART_MAX)}
+                        </text>
+                      </g>
+                    );
+                  })}
+                  {/* Bars */}
+                  {CHART_DATA.map((d, i) => {
+                    const barH = (d.homes / CHART_MAX) * innerH;
+                    const x = padL + i * barGap + barGap * 0.225;
+                    const y = padT + innerH - barH;
+                    const isMax = d.homes === Math.max(...CHART_DATA.map(x => x.homes));
+                    return (
+                      <g key={d.year}>
+                        <rect x={x} y={y} width={barW} height={barH}
+                          fill={isMax ? 'var(--orange)' : 'var(--navy)'}
+                          opacity={isMax ? 1 : 0.6}
+                        />
+                        <text x={x + barW / 2} y={padT + innerH + 18} textAnchor="middle"
+                          fontSize="11" fill="#6b7280" fontFamily="DM Mono,monospace">
+                          {d.year}
+                        </text>
+                        <text x={x + barW / 2} y={y - 6} textAnchor="middle"
+                          fontSize="10" fill={isMax ? 'var(--orange)' : '#9ca3af'} fontWeight={isMax ? '700' : '400'}
+                          fontFamily="DM Mono,monospace">
+                          {d.homes.toLocaleString()}
+                        </text>
+                      </g>
+                    );
+                  })}
+                  {/* X-axis */}
+                  <line x1={padL} y1={padT + innerH} x2={padL + innerW} y2={padT + innerH} stroke="#e5e7eb" strokeWidth="1.5"/>
+                </svg>
+                <div className="chart-highlight">
+                  <div className="chart-arrow">→</div>
+                  <div className="chart-highlight-text">
+                    Homes installed during these years are now entering their replacement cycle.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TERRITORY MAP ──────────────────────────────────────────────── */}
+      <section id="map" className="bg-2">
+        <div className="container">
+          <div className="section-label">Spatial Intelligence</div>
+          <h2 className="section-title">See Where Replacement Demand Is Concentrated</h2>
+          <p className="section-body" style={{ marginBottom: 32 }}>
+            Interactive replacement-density map of the Treasure Coast. Darker areas represent
+            higher concentrations of homes entering replacement cycles.
+          </p>
+
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
+            <div className="trade-toggle">
+              <button
+                className={mapTrade === 'hvac' ? 'active-hvac' : ''}
+                onClick={() => setMapTrade('hvac')}
+              >
+                HVAC
+              </button>
+              <button
+                className={mapTrade === 'roofing' ? 'active-roofing' : ''}
+                onClick={() => setMapTrade('roofing')}
+              >
+                Roofing
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--muted)' }}>
+                <div style={{ width: 16, height: 16, background: mapTrade === 'hvac' ? '#1B3A6B' : '#E05C1A', opacity: 0.9 }}/>
+                Highest Density
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--muted)' }}>
+                <div style={{ width: 16, height: 16, background: mapTrade === 'hvac' ? '#8096b8' : '#f0a882', opacity: 0.75 }}/>
+                Moderate Density
+              </div>
+            </div>
+          </div>
+
+          <div className="map-wrap">
+            <MapComponent trade={mapTrade}/>
+          </div>
+          <p className="map-note">
+            Darker areas represent higher concentrations of homes entering replacement cycles.
+            Hover over any ZIP to see full replacement data. This helps contractors focus sales
+            efforts where installs are statistically approaching.
+          </p>
+        </div>
+      </section>
+
+      {/* ── WHAT THE NUMBERS MEAN ──────────────────────────────────────── */}
+      <section id="numbers">
+        <div className="container">
+          <div className="section-label">Data Interpretation</div>
+          <h2 className="section-title">Understanding Replacement Status</h2>
+          <p className="section-body">
+            TerritoryIQ classifies homes using system lifecycle data and housing infrastructure
+            lifecycle analysis to assign replacement urgency scores.
+          </p>
+          <div className="meaning-grid">
+            {[
+              { title: 'Critical', body: 'Homes highly likely to require system replacement now. These properties are beyond typical system lifecycle benchmarks and represent the most immediate install opportunities.', color: '#dc2626' },
+              { title: 'High',     body: 'Homes currently inside the expected replacement window based on installation history modeling. Active outreach converts these to full-ticket installs.', color: '#d97706' },
+              { title: 'Medium',   body: 'Homes approaching replacement age identified through housing infrastructure lifecycle analysis. Ideal for proactive pipeline development.', color: '#6b7280' },
+              { title: 'Entering Replacement', body: 'The total count of homes in the ZIP currently entering the replacement cycle across all urgency tiers — and worth active sales outreach.', color: 'var(--orange)' },
+            ].map(m => (
+              <div className="meaning-card" key={m.title} style={{ '--m-color': m.color } as React.CSSProperties}>
+                <div className="meaning-title" style={{ color: m.color }}>{m.title}</div>
+                <p className="meaning-body">{m.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW CONTRACTORS USE TERRITORYIQ ───────────────────────────── */}
+      <section id="how-it-works" className="bg-2">
+        <div className="container">
+          <div className="section-label">Operational Workflow</div>
+          <h2 className="section-title">How Contractors Use TerritoryIQ</h2>
+          <div className="steps-grid">
+            {[
+              { num: '01', step: 'Step 1', label: 'Predict', body: 'Identify homes entering HVAC or roof replacement cycles using replacement-cycle modeling and housing infrastructure lifecycle analysis.' },
+              { num: '02', step: 'Step 2', label: 'Outreach', body: 'Focus sales activity in neighborhoods where replacement windows are active — not where competitors happen to be running ads.' },
+              { num: '03', step: 'Step 3', label: 'Close', body: 'Convert full-ticket replacement installs before competitors appear. Exclusive territory control means no shared bids, no price wars.' },
+            ].map(s => (
+              <div className="step-card" key={s.num}>
+                <div className="step-num">{s.num}</div>
+                <div className="step-label">{s.step}</div>
+                <div className="step-title">{s.label}</div>
+                <p className="step-body">{s.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHY THIS BEATS SHARED LEADS ───────────────────────────────── */}
+      <section id="comparison">
+        <div className="container">
+          <div className="section-label">Competitive Position</div>
+          <h2 className="section-title">Shared Lead Platforms Sell Panic.<br/>TerritoryIQ Sells Timing.</h2>
+          <div className="compare-grid">
+            <div className="compare-card bad">
+              <div className="compare-title">Shared Lead Platforms</div>
+              {[
+                '3–5 contractors competing on the same lead',
+                'Immediate price race to the bottom',
+                'Emergency-only, reactive mindset',
+                'No ZIP exclusivity — anyone can bid',
+                'Pay per lead, lose on margin',
+              ].map(t => (
+                <div className="compare-item" key={t}>
+                  <span className="compare-icon">✕</span>
+                  <span>{t}</span>
+                </div>
+              ))}
+            </div>
+            <div className="compare-card good">
+              <div className="compare-title">TerritoryIQ</div>
+              {[
+                'Exclusive ZIP control — one contractor per trade',
+                'Replacement-cycle intelligence, not emergency chasing',
+                'Full-ticket install positioning before demand peaks',
+                'Predictive outreach, not reactive bidding',
+                'Own the territory, own the margin',
+              ].map(t => (
+                <div className="compare-item" key={t}>
+                  <span className="compare-icon" style={{ color: 'var(--gold)' }}>✓</span>
+                  <span>{t}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CHANNELS + MARKETING WHEEL ─────────────────────────────────── */}
+      <section id="channels" className="bg-2">
+        <div className="container">
+          <div className="section-label">Intelligence Engine</div>
+          <h2 className="section-title">The Full-Channel Advantage</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
+            <div>
+              <p style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 28 }}>
+                TerritoryIQ integrates inbound demand generation with outbound precision targeting —
+                a complete intelligence engine for replacement-cycle contractors.
+              </p>
+              <div className="channels-tabs">
+                <button className={activeTab === 'inbound' ? 'active' : ''} onClick={() => setActiveTab('inbound')}>Inbound</button>
+                <button className={activeTab === 'outbound' ? 'active' : ''} onClick={() => setActiveTab('outbound')}>Outbound</button>
+              </div>
+              <div>
+                {(activeTab === 'inbound' ? inboundChannels : outboundChannels).map(c => (
+                  <div className="channel-item" key={c.name}>
+                    <div className="channel-dot" style={{ background: activeTab === 'inbound' ? 'var(--orange)' : 'var(--navy)' }}/>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', marginBottom: 4 }}>{p.title}</div>
-                      <div style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.6 }}>{p.desc}</div>
+                      <div className="channel-name" style={{ color: activeTab === 'inbound' ? 'var(--orange)' : 'var(--navy)' }}>{c.name}</div>
+                      <div className="channel-desc">{c.desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div>
-              <div style={{ background: '#fff', border: '1px solid var(--border-mid)', padding: 32, boxShadow: '0 4px 32px rgba(26,47,94,0.08)' }}>
-                <div style={{ padding: 24, background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.12)' }}>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: 'var(--red)', textTransform: 'uppercase', marginBottom: 12 }}>Old Way</div>
-                  <div style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.6, marginBottom: 16 }}>Share leads, race to the bottom, lose on price</div>
-                  {['3–5 competitors on same lead', '$80–$400 per shared lead', 'Emergency calls only', 'Margin pressure every job'].map(item => (
-                    <div key={item} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-light)', marginBottom: 6 }}>
-                      <span style={{ color: 'var(--red)' }}>✗</span>{item}
-                    </div>
-                  ))}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+              <div style={{ fontSize: 11, fontFamily: 'DM Mono, monospace', letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)', textAlign: 'center' }}>
+                Intelligence Wheel
+              </div>
+              <MarketingWheel/>
+              <div style={{ display: 'flex', gap: 24, justifyContent: 'center', fontSize: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 10, height: 10, background: 'var(--orange)', borderRadius: 2 }}/> Inbound
                 </div>
-                <div className="vs-divider"><span className="vs-label">VS</span></div>
-                <div style={{ padding: 24, background: 'rgba(232,97,26,0.04)', border: '1px solid rgba(232,97,26,0.2)', borderLeft: '3px solid var(--orange)' }}>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 12 }}>TerritoryIQ Way</div>
-                  <div style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.6, marginBottom: 16 }}>Own your ZIP, predict failures, close at full ticket</div>
-                  {["You're the only contractor", 'Exclusive territory, locked on sign-up', 'Reach them before the breakdown', 'Close at full replacement price'].map(item => (
-                    <div key={item} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-mid)', marginBottom: 6 }}>
-                      <span style={{ color: 'var(--orange)' }}>✓</span>{item}
-                    </div>
-                  ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 10, height: 10, background: 'var(--navy)', borderRadius: 2 }}/> Outbound
                 </div>
               </div>
             </div>
@@ -379,368 +869,143 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ────────────────────────────────────────────── */}
-      <section id="how-it-works" style={{ padding: '100px 5%', background: 'var(--bg-2)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p className="section-label" style={{ justifyContent: 'center' }}>Predictive Intelligence Engine</p>
-            <h2 className="headline-lg">Predict. Outreach. Close.</h2>
-            <p style={{ color: 'var(--text-mid)', fontSize: 16, maxWidth: 520, margin: '16px auto 0' }}>
-              TerritoryIQ analyzes market signals to flag homes primed for replacements before the leak or breakdown hits.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 40 }} className="grid-3">
+      {/* ── TAM ────────────────────────────────────────────────────────── */}
+      <section id="tam">
+        <div className="container">
+          <div className="section-label">Market Size</div>
+          <h2 className="section-title">Total Addressable Revenue</h2>
+          <p className="section-body" style={{ marginBottom: 40 }}>
+            Exclusive territory control across these two trades represents over $200M in annual
+            addressable revenue — captured by one contractor per ZIP.
+          </p>
+          <div className="tam-grid">
             {[
-              { step: '01', icon: '🎯', title: 'Find Replacement-Ready Homes',
-                desc: 'We identify homes in your ZIP due for a full roof or HVAC replacement — before the homeowner has to deal with it breaking and start calling for estimates.',
-                points: ['Replacement-ready homes identified before they break', 'You reach out first — not after emergency dispatch', 'Post-storm ZIPs surface immediately'] },
-              { step: '02', icon: '🔒', title: 'Own the Territory',
-                desc: 'You are the only contractor in your trade for that ZIP. No one else gets your list. Your homes, your pipeline — period. Locked the moment you subscribe.',
-                points: ['1 roofer per ZIP code', '1 HVAC contractor per ZIP code', 'Locked the moment you subscribe'] },
-              { step: '03', icon: '💰', title: 'Close Full Replacement Jobs',
-                desc: 'A homeowner who planned a replacement is a $15k–$25k roofing ticket or an $8k–$15k HVAC replacement. Reach them first — win at full price.',
-                points: ['Full replacement tickets — not service calls', "No bidding wars — you're the only contractor", "One job typically covers your entire year's cost"] },
-            ].map(s => (
-              <div key={s.step} style={{ background: '#fff', border: '1px solid var(--border)', padding: 36, position: 'relative', boxShadow: '0 2px 16px rgba(26,47,94,0.05)' }}>
-                <div style={{ position: 'absolute', top: 20, right: 24, fontFamily: "'Bebas Neue', sans-serif", fontSize: 72, color: 'rgba(26,47,94,0.05)', lineHeight: 1 }}>{s.step}</div>
-                <span style={{ fontSize: 28, display: 'block', marginBottom: 20 }}>{s.icon}</span>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 10 }}>Step {s.step}</div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--navy)', marginBottom: 12, lineHeight: 1.3 }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: 'var(--text-light)', lineHeight: 1.7, marginBottom: 24 }}>{s.desc}</p>
-                <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {s.points.map(pt => (
-                    <div key={pt} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-mid)' }}>
-                      <span style={{ color: 'var(--orange)', flexShrink: 0 }}>✓</span>{pt}
-                    </div>
-                  ))}
-                </div>
+              { trade: 'Roofing', total: '$120M', color: 'var(--orange)' },
+              { trade: 'HVAC',    total: '$84M',  color: 'var(--navy)'   },
+            ].map(t => (
+              <div className="tam-card" key={t.trade}>
+                <div className="tam-trade">{t.trade}</div>
+                <div className="tam-total" style={{ color: t.color }}>{t.total}</div>
+                <div className="tam-sub">Annual Addressable Revenue</div>
               </div>
             ))}
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="grid-4">
-            {[
-              { n: '70%',   l: 'Less driving with ZIP-clustered routes' },
-              { n: '25%',   l: 'Higher close rates with predicted jobs' },
-              { n: '30%',   l: 'Lower CAC vs. shared lead platforms' },
-              { n: '1 job', l: 'Pays for your entire year of TerritoryIQ' },
-            ].map(s => (
-              <div key={s.l} style={{ textAlign: 'center', padding: 24, background: '#fff', border: '1px solid var(--border)', boxShadow: '0 2px 12px rgba(26,47,94,0.04)' }}>
-                <div className="stat-number">{s.n}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 8, lineHeight: 1.5 }}>{s.l}</div>
-              </div>
-            ))}
+          <div className="tam-total-box">
+            <div className="tam-total-label">Combined TAM</div>
+            <div className="tam-total-val">$204M</div>
           </div>
         </div>
       </section>
 
-      {/* ── UNFAIR ADVANTAGES ───────────────────────────────────────── */}
-      <section style={{ padding: '100px 5%', background: '#fff' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ marginBottom: 56 }}>
-            <p className="section-label">Two Unfair Advantages</p>
-            <h2 className="headline-lg">Built into every territory.</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }} className="grid-2">
-            {[
-              { icon: '🌪️', title: 'Storm Prediction — Hit the Door First', accent: 'var(--orange)',
-                desc: "When a storm hits your ZIP, TerritoryIQ immediately cross-references storm impact data with homes in your territory already due for a roof replacement. You get a prioritized knock list the same day — no guessing which streets to canvas, no wasted windshield time." },
-              { icon: '📍', title: 'Cluster Routing — Stop Driving Across Three Counties', accent: 'var(--navy)',
-                desc: "Because your territory is one ZIP, every replacement-ready home is within a few miles of the next one. Hit five homes on the same street in a single afternoon. Less windshield time. More doors knocked. More full-ticket replacements closed." },
-            ].map(adv => (
-              <div key={adv.title} style={{ padding: 48, background: 'var(--bg-2)', border: '1px solid var(--border)', borderTop: `3px solid ${adv.accent}`, boxShadow: '0 2px 20px rgba(26,47,94,0.05)' }}>
-                <div style={{ fontSize: 36, marginBottom: 20 }}>{adv.icon}</div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--navy)', marginBottom: 16 }}>{adv.title}</h3>
-                <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.8 }}>{adv.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CHANNELS ────────────────────────────────────────────────── */}
-      <section id="channels" style={{ padding: '100px 5%', background: 'var(--bg-2)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'start' }} className="grid-2">
-
-            {/* Left — tab switcher */}
+      {/* ── FORM / CTA ─────────────────────────────────────────────────── */}
+      <section id="get-started" style={{ background: 'var(--bg-2)', padding: '96px 24px' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'start' }}>
             <div>
-              <p className="section-label">Full Marketing Integration</p>
-              <h2 className="headline-lg" style={{ marginBottom: 20 }}>Every Channel You Run.<br/>Supercharged.</h2>
-              <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.8, marginBottom: 28 }}>
-                TerritoryIQ isn&apos;t a replacement for your marketing — it&apos;s the intelligence layer that makes every channel you already use dramatically more effective.
+              <div className="section-label">Claim Your Territory</div>
+              <h2 className="section-title">One Contractor.<br/>One Trade.<br/>One ZIP.</h2>
+              <p style={{ fontSize: 16, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 32 }}>
+                TerritoryIQ is not a shared lead platform. It&apos;s exclusive intelligence access.
+                Once a ZIP is claimed, it&apos;s off the market for that trade.
               </p>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-                <button className={`tab-btn${activeTab === 'inbound'  ? ' active' : ''}`} onClick={() => setActiveTab('inbound')}>Inbound</button>
-                <button className={`tab-btn${activeTab === 'outbound' ? ' active' : ''}`} onClick={() => setActiveTab('outbound')}>Outbound</button>
-              </div>
-              {activeTab === 'inbound' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div className="card">
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.1em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 8 }}>Approach</div>
-                    <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.7 }}>When someone in your ZIP calls from an inbound ad, you instantly cross-reference their address. You already know if their roof or HVAC is overdue — before the conversation even starts.</p>
-                  </div>
-                  <div className="card">
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.1em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 8 }}>Channels</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {['Google LSA', 'Organic SEO', 'Review Platforms', 'Referral Funnels'].map(c => <span className="channel-pill" key={c}>{c}</span>)}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { label: 'Exclusive Access', val: 'One contractor per trade per ZIP' },
+                  { label: 'Full Pipeline',    val: 'Replacement cycle homes only — no service calls' },
+                  { label: 'Live Intelligence', val: 'Ongoing lifecycle analysis updates' },
+                ].map(i => (
+                  <div key={i.label} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                    <div style={{ width: 8, height: 8, background: 'var(--orange)', borderRadius: '50%', marginTop: 6, flexShrink: 0 }}/>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', marginBottom: 2 }}>{i.label}</div>
+                      <div style={{ fontSize: 13, color: 'var(--muted)' }}>{i.val}</div>
                     </div>
                   </div>
-                  <div className="card">
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.1em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 8 }}>Impact</div>
-                    <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.7 }}>Callers who match a replacement-ready address convert at significantly higher rates and require less convincing to close at full ticket.</p>
-                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', border: '1px solid var(--border)', padding: 36, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+              {submitted ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
+                  <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 32, color: 'var(--navy)', marginBottom: 12 }}>Request Received</div>
+                  <p style={{ color: 'var(--muted)', fontSize: 15 }}>
+                    We&apos;ll review your territory request and reach out within one business day.
+                  </p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div className="card">
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.1em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 8 }}>Approach</div>
-                    <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.7 }}>TerritoryIQ pinpoints exactly which homes to target — 15-year-old roof in a saltwater zone, 11-year HVAC in peak FL heat — before the breakdown, not after.</p>
+                <>
+                  <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 26, color: 'var(--navy)', marginBottom: 24 }}>
+                    Request Territory Access
                   </div>
-                  <div className="card">
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.1em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 8 }}>Channels</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {['Cold Calls', 'Direct Mail', 'Door-to-Door', 'Geofence Ads'].map(c => <span className="channel-pill" key={c}>{c}</span>)}
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label>Business Name *</label>
+                      <input type="text" placeholder="Your Company" {...field('businessName')}/>
+                    </div>
+                    <div className="form-field">
+                      <label>Contact Name</label>
+                      <input type="text" placeholder="Your Name" {...field('contactName')}/>
+                    </div>
+                    <div className="form-field">
+                      <label>Phone *</label>
+                      <input type="tel" placeholder="(555) 000-0000" {...field('phone')}/>
+                    </div>
+                    <div className="form-field">
+                      <label>Email</label>
+                      <input type="email" placeholder="you@company.com" {...field('email')}/>
+                    </div>
+                    <div className="form-field">
+                      <label>Trade *</label>
+                      <select {...field('trade')}>
+                        <option value="">Select Trade</option>
+                        <option value="roofing">Roofing</option>
+                        <option value="hvac">HVAC</option>
+                        <option value="both">Both</option>
+                      </select>
+                    </div>
+                    <div className="form-field">
+                      <label>Target ZIP(s) *</label>
+                      <input type="text" placeholder="34997, 34990…" {...field('zip')}/>
+                    </div>
+                    <div className="form-field form-full">
+                      <label>Best Time to Reach You</label>
+                      <input type="text" placeholder="e.g. Weekdays 9am–12pm" {...field('bestTime')}/>
+                    </div>
+                    <div className="form-field form-full">
+                      <label>Notes</label>
+                      <textarea rows={3} placeholder="Anything else we should know…" style={{ resize: 'vertical' }} {...field('notes')}/>
                     </div>
                   </div>
-                  <div className="card">
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.1em', color: 'var(--orange)', textTransform: 'uppercase', marginBottom: 8 }}>Impact</div>
-                    <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.7 }}>Stop cold-calling blind — call warm with a reason. 20–30% better conversion when outbound is driven by replacement-ready address data vs. random canvassing.</p>
-                  </div>
-                </div>
+                  <button
+                    className="btn-primary"
+                    style={{ marginTop: 24, width: '100%', justifyContent: 'center' }}
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {loading ? 'Sending…' : 'Claim My Territory →'}
+                  </button>
+                </>
               )}
             </div>
-
-            {/* Right — channel list + wheel */}
-            <div>
-              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>More ways to use TerritoryIQ</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 28 }}>
-                {[
-                  { icon: '📱', title: 'Digital & Social Ads',      badge: '20–30% better CVR',       desc: 'Build custom Facebook and Instagram audiences matched to predicted-failure home profiles.' },
-                  { icon: '📍', title: 'Geofence Advertising',       badge: 'Saltwater hotspot zones',  desc: 'Geofence waterfront neighborhoods and post-storm corridors where corrosion and age intersect.' },
-                  { icon: '🗂️', title: 'CRM & Pipeline Automation', badge: 'Zero manual sorting',      desc: 'Replacement-ready lists export directly into your CRM, sorted by readiness.' },
-                  { icon: '🌪️', title: 'Storm Canvassing',          badge: 'Same-day knock lists',     desc: 'When a storm hits, TerritoryIQ instantly surfaces every replacement-ready home, ranked and ready.' },
-                  { icon: '🏘️', title: 'Neighborhood Clustering',   badge: '70% less windshield time', desc: 'Run door-to-door routes with 5–10 replacement-ready homes on the same block.' },
-                  { icon: '🔁', title: 'Get There 2 Years Early',   badge: 'Lock in before it bids',   desc: 'Flag homes 1–2 years before replacement. Build the relationship before competition shows up.' },
-                ].map(item => (
-                  <div key={item.title} style={{ background: '#fff', border: '1px solid var(--border)', padding: '16px 20px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
-                    <div>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 3, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>{item.title}</span>
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: 'var(--orange)', letterSpacing: '0.06em' }}>{item.badge}</span>
-                      </div>
-                      <p style={{ fontSize: 12, color: 'var(--text-light)', lineHeight: 1.6 }}>{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Marketing wheel */}
-              <div style={{ background: '#fff', border: '1px solid var(--border)', padding: '24px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.12em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Intelligence Wheel</div>
-                <MarketingWheel/>
-                <div style={{ display: 'flex', gap: 20, fontSize: 12, fontWeight: 600 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--orange)', display: 'inline-block' }}/>
-                    <span style={{ color: 'var(--orange)' }}>Inbound</span>
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--navy)', display: 'inline-block' }}/>
-                    <span style={{ color: 'var(--navy)' }}>Outbound</span>
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* ── TAM ─────────────────────────────────────────────────────── */}
-      <section id="tam-market" style={{ padding: '100px 5%', background: '#fff' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <p className="section-label" style={{ justifyContent: 'center' }}>Martin County, FL — Annual TAM</p>
-            <h2 className="headline-lg">$204M Market.<br/>You Could Own It.</h2>
-            <p style={{ color: 'var(--text-mid)', marginTop: 16, fontSize: 16 }}>Why compete for 25% of a shared lead when you can own 100% of the territory?</p>
+      {/* ── FOOTER ─────────────────────────────────────────────────────── */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <InstinctRiseLogo height={36}/>
+          <div className="footer-copy">
+            © {new Date().getFullYear()} InstinctRise · TerritoryIQ · All rights reserved
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }} className="grid-2">
-            {[
-              { trade: 'Roofing', total: '$120M', color: 'var(--orange)', sub: 'Annual Addressable Revenue' },
-              { trade: 'HVAC',    total: '$84M',  color: 'var(--navy)',   sub: 'Annual Addressable Revenue' },
-            ].map(t => (
-              <div key={t.trade} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderTop: `3px solid ${t.color}`, padding: 40, boxShadow: '0 2px 16px rgba(26,47,94,0.05)', textAlign: 'center' }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, letterSpacing: '0.1em', color: t.color, textTransform: 'uppercase', marginBottom: 16 }}>{t.trade}</div>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 80, color: t.color, lineHeight: 1, marginBottom: 12 }}>{t.total}</div>
-                <div style={{ fontSize: 14, color: 'var(--text-light)' }}>{t.sub}</div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ background: 'var(--navy)', padding: '40px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
-            <div>
-              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--orange)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Combined Annual TAM — Martin County</div>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 68, color: '#fff', lineHeight: 1 }}>$204M</div>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, marginTop: 8, maxWidth: 420 }}>Every contractor on shared platforms is fighting over a fraction of this. TerritoryIQ lets you stake your claim exclusively.</p>
-            </div>
-            <a href="#get-started" className="btn-primary">Claim Your Territory →</a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TERRITORY MODEL ─────────────────────────────────────────── */}
-      <section style={{ padding: '100px 5%', background: 'var(--bg-2)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }} className="grid-2">
-            <div>
-              <p className="section-label">Exclusive by Trade, Exclusive by ZIP</p>
-              <h2 className="headline-lg" style={{ marginBottom: 24 }}>One Contractor.<br/>One Trade.<br/>One ZIP.<br/>Full Stop.</h2>
-              <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.8, marginBottom: 24 }}>
-                We never double-sell a territory. The moment you claim a ZIP for your trade, it&apos;s locked — unavailable to every competitor in your space.
-              </p>
-              <div style={{ background: '#fff', border: '1px solid var(--border)', borderLeft: '4px solid var(--orange)', padding: 24 }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--orange)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>🔒 The TerritoryIQ Guarantee</div>
-                <p style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.7 }}>Different trades can license the same ZIP. But no one in <em>your</em> trade will ever compete in your territory.</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {[
-                { zip: '34990', rows: [{ trade: 'Roofing', status: 'yours' }, { trade: 'HVAC', status: 'available' }, { trade: 'Plumbing', status: 'available' }] },
-                { zip: '34997', rows: [{ trade: 'Roofing', status: 'available' }, { trade: 'HVAC', status: 'available' }, { trade: 'Plumbing', status: 'taken' }] },
-                { zip: '33455', rows: [{ trade: 'Roofing', status: 'available' }, { trade: 'HVAC', status: 'yours' }, { trade: 'Plumbing', status: 'available' }] },
-              ].map(group => (
-                <div key={group.zip} style={{ background: '#fff', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: '0 1px 8px rgba(26,47,94,0.05)' }}>
-                  <div style={{ padding: '10px 20px', background: 'var(--bg-3)', borderBottom: '1px solid var(--border)', fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--text-light)', letterSpacing: '0.08em' }}>ZIP {group.zip}</div>
-                  {group.rows.map(row => (
-                    <div key={row.trade} style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
-                      <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>{row.trade}</span>
-                      {row.status === 'yours'     && <span style={{ background: 'rgba(232,97,26,0.1)', border: '1px solid rgba(232,97,26,0.3)', color: 'var(--orange)', fontFamily: "'DM Mono', monospace", fontSize: 10, padding: '3px 8px', letterSpacing: '0.08em' }}>★ YOUR TERRITORY</span>}
-                      {row.status === 'available' && <span className="badge-available">✓ Available</span>}
-                      {row.status === 'taken'     && <span className="badge-claimed">✗ Taken</span>}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA / FORM ───────────────────────────────────────────────── */}
-      <section id="get-started" style={{ padding: '100px 5%', background: 'var(--navy)', position: 'relative', overflow: 'hidden' }}>
-        <div className="orange-glow" style={{ width: 800, height: 800, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}/>
-        <div style={{ maxWidth: 860, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-
-          <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <p className="section-label" style={{ justifyContent: 'center' }}>Secure Your Territory</p>
-            <h2 className="headline-lg" style={{ color: '#fff', marginBottom: 16 }}>Stop Splitting Scraps.<br/>Own Your Market.</h2>
-            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.7 }}>
-              Tell us your trade and ZIP — we&apos;ll confirm availability and walk you through the rest.
-            </p>
-            <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['No shared leads — ever', 'Exclusive per trade, per ZIP', 'One job covers your full subscription'].map(pt => (
-                <div key={pt} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.65)', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--orange)' }}>✓</span>{pt}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {submitted ? (
-            <div style={{ background: '#fff', padding: 64, textAlign: 'center' }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
-              <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 36, color: 'var(--navy)', marginBottom: 12 }}>You&apos;re on the list.</h3>
-              <p style={{ fontSize: 15, color: 'var(--text-mid)', lineHeight: 1.7 }}>We&apos;ll confirm your ZIP availability and reach out within one business day. No spam. No shared leads.</p>
-            </div>
-          ) : (
-            <div style={{ background: '#fff', padding: 48, boxShadow: '0 8px 48px rgba(0,0,0,0.25)' }}>
-              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--orange)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 28, borderBottom: '1px solid var(--border)', paddingBottom: 16 }}>
-                Check ZIP Availability — Takes 60 seconds
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }} className="grid-2">
-                {[
-                  { label: 'Business Name *', placeholder: 'ABC Roofing LLC',       key: 'businessName' },
-                  { label: 'Contact Name *',  placeholder: 'John Smith',             key: 'contactName'  },
-                  { label: 'Phone *',         placeholder: '(555) 555-5555',          key: 'phone'        },
-                  { label: 'Email',           placeholder: 'john@abcroofing.com',     key: 'email'        },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label style={{ display: 'block', fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>{f.label}</label>
-                    <input className="input-field" placeholder={f.placeholder}
-                      value={formData[f.key as keyof typeof formData]}
-                      onChange={e => setFormData({ ...formData, [f.key]: e.target.value })}
-                      type={f.key === 'phone' ? 'tel' : f.key === 'email' ? 'email' : 'text'}/>
-                  </div>
-                ))}
-                <div>
-                  <label style={{ display: 'block', fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Your Trade *</label>
-                  <select className="input-field" value={formData.trade} onChange={e => setFormData({ ...formData, trade: e.target.value })}>
-                    <option value="">Select trade...</option>
-                    <option>Roofing</option><option>HVAC</option><option>Plumbing</option>
-                    <option>Electrical</option><option>Windows / Siding</option><option>Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Target ZIP *</label>
-                  <input className="input-field" placeholder="34997" value={formData.zip}
-                    onChange={e => setFormData({ ...formData, zip: e.target.value })}/>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Best Time to Contact</label>
-                <select className="input-field" value={formData.bestTime} onChange={e => setFormData({ ...formData, bestTime: e.target.value })}>
-                  <option value="">Select a time window...</option>
-                  <option>Mornings (8am – 12pm)</option><option>Afternoons (12pm – 5pm)</option>
-                  <option>Evenings (5pm – 8pm)</option><option>Anytime</option>
-                </select>
-              </div>
-
-              <div style={{ marginBottom: 32 }}>
-                <label style={{ display: 'block', fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-light)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Anything else? (optional)</label>
-                <textarea className="input-field" rows={3} placeholder="Additional context..."
-                  value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                  style={{ resize: 'vertical' }}/>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-                <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-                  {loading ? 'Sending...' : 'Check My ZIP Availability →'}
-                </button>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>No spam. No shared leads. Pricing discussed on call.</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── FOOTER ───────────────────────────────────────────────────── */}
-      <footer style={{ background: 'var(--bg-2)', borderTop: '1px solid var(--border)', padding: '40px 5%' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <InstinctRiseLogo height={36}/>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.08em' }}>
-                Territory<span style={{ color: 'var(--orange)' }}>IQ</span>
-              </span>
-            </div>
-            <p style={{ fontSize: 12, color: 'var(--text-light)', maxWidth: 320, lineHeight: 1.6 }}>
-              TerritoryIQ is the flagship product of InstinctRise — exclusive territory intelligence for contractors.
-            </p>
-            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, fontFamily: "'DM Mono', monospace" }}>
-              © {new Date().getFullYear()} InstinctRise. All rights reserved.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 24 }}>
-            {['Privacy', 'Terms', 'Contact'].map(l => (
-              <a key={l} href="#get-started" style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--text-light)', textDecoration: 'none', letterSpacing: '0.06em' }}>{l}</a>
-            ))}
+          <div className="footer-links">
+            <a href="#opportunities">ZIP Opportunities</a>
+            <a href="#map">Territory Map</a>
+            <a href="#get-started">Claim Territory</a>
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
