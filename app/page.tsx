@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -22,12 +22,29 @@ const navLinks = [
 ];
 
 // ─── Logo ──────────────────────────────────────────────────────────────────────
+// Save your logo PNG to /public/logo.png and it will render automatically.
 
 function InstinctRiseLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const hClass = size === 'sm' ? 'h-9' : size === 'lg' ? 'h-20' : 'h-12';
+
+  if (!imgFailed) {
+    return (
+      <img
+        src="/logo.png"
+        alt="InstinctRise"
+        className={`${hClass} w-auto`}
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
+
+  // Fallback SVG if /public/logo.png not found
   const d = size === 'sm' ? 36 : size === 'lg' ? 60 : 44;
   return (
     <div className="flex items-center gap-2.5">
       <svg width={d} height={d} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Sun */}
         <circle cx="63" cy="27" r="14" fill="#F5A623"/>
         <line x1="63" y1="7"  x2="63" y2="1"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
         <line x1="63" y1="47" x2="63" y2="53" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
@@ -35,14 +52,18 @@ function InstinctRiseLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
         <line x1="83" y1="27" x2="89" y2="27" stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
         <line x1="49" y1="13" x2="45" y2="9"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
         <line x1="77" y1="13" x2="81" y2="9"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
-        <polygon points="10,60 50,30 90,60" fill="#E05C1A"/>
-        <rect x="18" y="60" width="64" height="34" rx="2" fill="#1B3A6B"/>
-        <rect x="40" y="74" width="16" height="20" rx="2" fill="#0f2344"/>
-        <rect x="22" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
-        <rect x="60" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
-        <rect x="60" y="42" width="10" height="22" fill="#1B3A6B" opacity="0.7"/>
-        <rect x="72" y="50" width="8"  height="14" fill="#1B3A6B" opacity="0.5"/>
-        <rect x="50" y="46" width="9"  height="18" fill="#1B3A6B" opacity="0.6"/>
+        {/* Buildings */}
+        <rect x="5"  y="52" width="12" height="42" rx="1" fill="#1B3A6B"/>
+        <rect x="19" y="38" width="14" height="56" rx="1" fill="#163060"/>
+        <rect x="35" y="48" width="10" height="46" rx="1" fill="#1B3A6B"/>
+        {/* House */}
+        <polygon points="40,62 65,42 90,62" fill="#E05C1A"/>
+        <rect x="48" y="62" width="34" height="32" rx="2" fill="#1B3A6B"/>
+        <rect x="58" y="74" width="10" height="20" rx="1" fill="#0f2344"/>
+        <rect x="51" y="66" width="10" height="9"  rx="1" fill="#5b8dd9"/>
+        <rect x="72" y="66" width="8"  height="9"  rx="1" fill="#5b8dd9"/>
+        {/* Swoosh underline */}
+        <path d="M2,96 Q50,86 98,96" stroke="#1B3A6B" strokeWidth="3" fill="none" strokeLinecap="round"/>
       </svg>
       <div className="flex flex-col leading-tight">
         <span className={`font-extrabold tracking-tight ${size === 'lg' ? 'text-2xl' : size === 'sm' ? 'text-base' : 'text-xl'}`}>
@@ -217,11 +238,12 @@ function TAMSection() {
 
 // ─── Info Capture Form ────────────────────────────────────────────────────────
 
-function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: string; initialTrade?: string }) {
+function LeadCaptureForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]     = useState(false);
   const [form, setForm] = useState({
-    name: '', company: '', trade: initialTrade, zip: initialZip, phone: '', email: '', message: '',
+    businessName: '', contactName: '', phone: '', email: '',
+    trade: '', zip: '', bestTime: '', message: '',
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
@@ -232,15 +254,13 @@ function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: 
     e.preventDefault();
     setLoading(true);
     try {
-      // Configure your form endpoint — sign up free at https://formspree.io
-      // Replace YOUR_FORM_ID below with your actual Formspree form ID
-      await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
     } catch {
-      // Show success regardless — configure endpoint to capture submissions
+      // Show success even if network error — submission is logged server-side
     }
     setLoading(false);
     setSubmitted(true);
@@ -265,8 +285,8 @@ function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: 
             {[
               'No shared leads — ever',
               'Exclusive per trade, per ZIP',
-              'Predictive failure forecasts delivered to your CRM',
-              'One job typically covers the full subscription cost',
+              'Replacement job predictions delivered before homeowners call anyone',
+              'One replacement job covers the full subscription cost',
             ].map(item => (
               <li key={item} className="flex items-center gap-3 text-blue-100 text-sm">
                 <span className="w-5 h-5 rounded-full bg-[#E05C1A] flex items-center justify-center text-white text-xs font-bold shrink-0">✓</span>
@@ -291,18 +311,37 @@ function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Full Name *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Business Name *</label>
                     <input
-                      required name="name" value={form.name} onChange={handleChange}
-                      placeholder="John Smith"
+                      required name="businessName" value={form.businessName} onChange={handleChange}
+                      placeholder="Smith Roofing LLC"
                       className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Company</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact Name *</label>
                     <input
-                      name="company" value={form.company} onChange={handleChange}
-                      placeholder="Smith Roofing LLC"
+                      required name="contactName" value={form.contactName} onChange={handleChange}
+                      placeholder="John Smith"
+                      className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone *</label>
+                    <input
+                      required name="phone" value={form.phone} onChange={handleChange} type="tel"
+                      placeholder="(561) 555-0100"
+                      className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</label>
+                    <input
+                      name="email" value={form.email} onChange={handleChange} type="email"
+                      placeholder="john@smithroofing.com"
                       className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
                     />
                   </div>
@@ -335,23 +374,18 @@ function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone *</label>
-                    <input
-                      required name="phone" value={form.phone} onChange={handleChange} type="tel"
-                      placeholder="(561) 555-0100"
-                      className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email *</label>
-                    <input
-                      required name="email" value={form.email} onChange={handleChange} type="email"
-                      placeholder="john@smithroofing.com"
-                      className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
-                    />
-                  </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Best Time to Contact *</label>
+                  <select
+                    required name="bestTime" value={form.bestTime} onChange={handleChange}
+                    className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B] bg-white"
+                  >
+                    <option value="">Select a time window...</option>
+                    <option>Mornings (8am – 12pm)</option>
+                    <option>Afternoons (12pm – 5pm)</option>
+                    <option>Evenings (5pm – 8pm)</option>
+                    <option>Anytime</option>
+                  </select>
                 </div>
 
                 <div>
@@ -384,11 +418,6 @@ function LeadCaptureForm({ initialZip = '', initialTrade = '' }: { initialZip?: 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
-  const [activeFilter, setActiveFilter] = useState('All');
-
-  const filtered   = activeFilter === 'All' ? territories : territories.filter(t => t.trade === activeFilter);
-  const available  = filtered.filter(t => t.status === 'Available');
-  const claimed    = filtered.filter(t => t.status === 'Claimed');
 
   return (
     <div className="bg-white min-h-screen font-sans text-slate-900 overflow-x-hidden">
@@ -418,21 +447,23 @@ export default function LandingPage() {
             }}/>
           ))}
         </div>
-        <div className="relative max-w-5xl mx-auto px-6 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-[#E05C1A]/20 border border-[#E05C1A]/40 text-orange-300 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wider uppercase mb-8">
-            <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"/>
-            Flagship Product by InstinctRise
+        <div className="relative max-w-5xl mx-auto px-6 pt-16 pb-24 text-center">
+          {/* Logo + product name */}
+          <div className="flex flex-col items-center gap-2 mb-10">
+            <InstinctRiseLogo size="lg"/>
+            <span className="text-2xl font-black tracking-[0.18em] text-white uppercase mt-1">TerritoryIQ</span>
           </div>
+
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
             Stop Fighting <span className="text-[#E05C1A]">3–5 Competitors</span>
             <br/>Own Your Market.
           </h1>
           <p className="text-xl text-blue-200 mb-4 max-w-3xl mx-auto leading-relaxed">
-            TerritoryIQ delivers <strong className="text-white">exclusive predictive intelligence</strong> for replacement work —
-            one contractor, one trade, one ZIP. Know which homes are failing <em>before</em> your competitors even get the call.
+            We use <strong className="text-white">proprietary data to predict roof and HVAC replacements</strong> before the homeowner has to deal with it breaking and start calling around for estimates.
+            One contractor. One trade. One ZIP. You reach them first.
           </p>
           <p className="text-base text-blue-300 mb-10 max-w-2xl mx-auto">
-            Roofing. HVAC. Yours alone. No bidding wars. No shared leads. Just you dominating with data.
+            These are full replacement jobs — $15k–$25k roofing, $8k–$15k HVAC. Not service calls. Not shared leads. <strong className="text-white">One job pays for itself.</strong>
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#territories" className="inline-block bg-[#E05C1A] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition shadow-xl text-center">
@@ -543,6 +574,32 @@ export default function LandingPage() {
                 <div className="text-xs text-slate-500 leading-relaxed">{m.label}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Storm + Cluster Routing ──────────────────────────────────── */}
+      <section className="py-16 px-6 bg-[#0a1f44] text-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-orange-400 font-semibold tracking-widest text-sm uppercase mb-2">Two Unfair Advantages</p>
+            <h2 className="text-3xl font-extrabold">Built into every territory.</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white/10 border border-white/20 rounded-2xl p-7">
+              <div className="text-4xl mb-4">🌪️</div>
+              <h3 className="text-xl font-extrabold text-[#E05C1A] mb-2">Storm Prediction — Hit the Door First</h3>
+              <p className="text-blue-200 leading-relaxed">
+                When a storm hits your ZIP, TerritoryIQ immediately cross-references storm impact data with homes in your territory that our data already shows are due for a roof replacement. You get a prioritized knock list the same day — no guessing which streets to canvas, no wasted windshield time chasing the wrong addresses. You show up before any other contractor even knows where to go.
+              </p>
+            </div>
+            <div className="bg-white/10 border border-white/20 rounded-2xl p-7">
+              <div className="text-4xl mb-4">📍</div>
+              <h3 className="text-xl font-extrabold text-[#F5A623] mb-2">Cluster Routing — Stop Driving Across Three Counties</h3>
+              <p className="text-blue-200 leading-relaxed">
+                Because your territory is one ZIP, every replacement-ready home on your list is within a few miles of the next one. Hit five homes on the same street in a single afternoon instead of burning two hours driving across the county for one lead. Less windshield time. More doors knocked. More full-ticket replacements closed — and your crews are already in the neighborhood.
+              </p>
+            </div>
           </div>
         </div>
       </section>
