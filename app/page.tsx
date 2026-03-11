@@ -92,18 +92,19 @@ function InstinctRiseLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 // ─── Marketing Wheel ──────────────────────────────────────────────────────────
 
 function MarketingWheel() {
-  // 8 equal segments (45° each). 4 inbound orange tones left, 4 outbound blue tones right.
-  // Segment midpoints for labels (every 45° starting at -112.5°)
-  const cx = 160, cy = 160, outerR = 148, innerR = 68, gap = 2;
+  const cx = 160, cy = 160, outerR = 148, innerR = 68, gap = 3;
+
+  // Orange on LEFT = inbound, Navy on RIGHT = outbound
+  // i=0 starts at -90° (top) and goes clockwise
   const segments = [
-    { label: 'SEO &\nContent',     color: '#E05C1A', side: 'inbound'  },
-    { label: 'Google\nLSA',        color: '#CF5218', side: 'inbound'  },
-    { label: 'Referral\nFunnels',  color: '#B84610', side: 'inbound'  },
-    { label: 'Review\nMarketing',  color: '#A33B0C', side: 'inbound'  },
-    { label: 'Direct\nMail',       color: '#1B3A6B', side: 'outbound' },
-    { label: 'Cold\nOutreach',     color: '#163060', side: 'outbound' },
-    { label: 'Door-to-\nDoor',     color: '#112655', side: 'outbound' },
-    { label: 'Geofence\nAds',      color: '#0D1D44', side: 'outbound' },
+    { label: 'Proactive\nOutreach',  color: '#1B3A6B', icon: 'person'    }, // top-right
+    { label: 'Storm &\nRouting',     color: '#163060', icon: 'crosshair'  }, // upper-right
+    { label: 'Outbound\nChannels',   color: '#112655', icon: 'signal'     }, // lower-right
+    { label: 'Exclusive\nROI',       color: '#0D1D44', icon: 'chart'      }, // bottom-right
+    { label: 'Full-Ticket\nValue',   color: '#A33B0C', icon: 'chart'      }, // bottom-left
+    { label: 'Inbound\nChannels',    color: '#B84610', icon: 'signal'     }, // lower-left
+    { label: 'Replacement\nFocus',   color: '#CF5218', icon: 'crosshair'  }, // upper-left
+    { label: 'Predictive\nData',     color: '#E05C1A', icon: 'person'     }, // top-left
   ];
 
   function polarToCart(angleDeg: number, r: number) {
@@ -119,8 +120,49 @@ function MarketingWheel() {
     return `M${s1.x},${s1.y} L${s2.x},${s2.y} A${outerR},${outerR} 0 0,1 ${e1.x},${e1.y} L${e2.x},${e2.y} A${innerR},${innerR} 0 0,0 ${s1.x},${s1.y} Z`;
   }
 
+  function SegIcon({ type }: { type: string }) {
+    const sw = 1.3;
+    switch (type) {
+      case 'person': return (
+        <>
+          <circle r="3.5" fill="white"/>
+          <path d="M-5,4.5 C-5,11 -3,12 0,12 C3,12 5,11 5,4.5 Z" fill="white"/>
+          <line x1="-9" y1="3" x2="-5.5" y2="3" stroke="white" strokeWidth={sw} strokeLinecap="round"/>
+          <polygon points="-5.5,1.5 -5.5,4.5 -3,3" fill="white"/>
+          <line x1="5.5" y1="3" x2="9" y2="3" stroke="white" strokeWidth={sw} strokeLinecap="round"/>
+          <polygon points="5.5,1.5 5.5,4.5 8,3" fill="white"/>
+        </>
+      );
+      case 'crosshair': return (
+        <>
+          <circle r="7" fill="none" stroke="white" strokeWidth={sw}/>
+          <circle r="2" fill="white"/>
+          <line x1="-11" y1="0" x2="-8" y2="0" stroke="white" strokeWidth={sw}/>
+          <line x1="8" y1="0" x2="11" y2="0" stroke="white" strokeWidth={sw}/>
+          <line x1="0" y1="-11" x2="0" y2="-8" stroke="white" strokeWidth={sw}/>
+          <line x1="0" y1="8" x2="0" y2="11" stroke="white" strokeWidth={sw}/>
+        </>
+      );
+      case 'signal': return (
+        <>
+          <path d="M-10,-2 Q0,-14 10,-2" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+          <path d="M-6,4 Q0,-3 6,4" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+          <circle r="2.5" cy="9" fill="white"/>
+        </>
+      );
+      case 'chart': return (
+        <>
+          <rect x="-9" y="1" width="5" height="8" rx="0.5" fill="white" opacity="0.8"/>
+          <rect x="-2" y="-3" width="5" height="12" rx="0.5" fill="white"/>
+          <rect x="5" y="-8" width="5" height="17" rx="0.5" fill="white" opacity="0.8"/>
+        </>
+      );
+      default: return null;
+    }
+  }
+
   return (
-    <svg viewBox="0 0 320 320" className="w-full max-w-[320px] drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 320 320" className="w-full max-w-[360px] drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
       {segments.map((seg, i) => {
         const startDeg = -90 + i * 45;
         const endDeg   = startDeg + 45;
@@ -131,29 +173,28 @@ function MarketingWheel() {
         return (
           <g key={i}>
             <path d={segPath(startDeg, endDeg)} fill={seg.color}/>
-            {lines.map((ln, li) => (
-              <text
-                key={li}
-                x={lp.x}
-                y={lp.y + (li - (lines.length - 1) / 2) * 11}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="8.5"
-                fontWeight="700"
-                fill="white"
-                transform={`rotate(${midDeg + 90}, ${lp.x}, ${lp.y})`}
-              >
-                {ln}
-              </text>
-            ))}
+            <g transform={`rotate(${midDeg + 90}, ${lp.x}, ${lp.y})`}>
+              {/* Icon centered slightly above midpoint */}
+              <g transform={`translate(${lp.x}, ${lp.y - 11})`}>
+                <SegIcon type={seg.icon}/>
+              </g>
+              {/* Text labels below icon */}
+              {lines.map((ln, li) => (
+                <text key={li} x={lp.x} y={lp.y + 8 + li * 10}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fontSize="7.5" fontWeight="700" fill="white">
+                  {ln}
+                </text>
+              ))}
+            </g>
           </g>
         );
       })}
 
-      {/* Inner circle */}
+      {/* Inner white circle */}
       <circle cx={cx} cy={cy} r={innerR} fill="white" stroke="#e2e8f0" strokeWidth="1.5"/>
 
-      {/* Center: mini logo */}
+      {/* Center: mini InstinctRise logo */}
       <g transform="translate(125 108) scale(0.7)">
         <circle cx="63" cy="27" r="14" fill="#F5A623"/>
         <line x1="63" y1="7"  x2="63" y2="1"  stroke="#F5A623" strokeWidth="3" strokeLinecap="round"/>
@@ -168,17 +209,17 @@ function MarketingWheel() {
         <rect x="22" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
         <rect x="60" y="66" width="14" height="12" rx="1" fill="#5b8dd9"/>
       </g>
-      <text x={cx} y={cy + 46} textAnchor="middle" fontSize="10" fontWeight="800" fill="#1B3A6B">TerritoryIQ</text>
-      <text x={cx} y={cy + 58} textAnchor="middle" fontSize="7.5" fill="#94a3b8">1 Trade · 1 ZIP</text>
+      <text x={cx} y={cy + 44} textAnchor="middle" fontSize="9.5" fontWeight="800" fill="#1B3A6B">TerritoryIQ</text>
+      <text x={cx} y={cy + 56} textAnchor="middle" fontSize="7" fill="#94a3b8">1 Trade · 1 ZIP</text>
 
-      {/* Divider line */}
-      <line x1={cx} y1={cy - innerR + 4} x2={cx} y2={cy + innerR - 4} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3,3"/>
+      {/* Full-height dashed divider */}
+      <line x1={cx} y1={6} x2={cx} y2={314} stroke="#d1d5db" strokeWidth="1" strokeDasharray="4,4"/>
 
-      {/* Side labels outside ring */}
-      <text x={cx - outerR - 8} y={cy} textAnchor="middle" fontSize="8" fontWeight="800" fill="#E05C1A"
-        transform={`rotate(-90, ${cx - outerR - 8}, ${cy})`}>INBOUND</text>
-      <text x={cx + outerR + 8} y={cy} textAnchor="middle" fontSize="8" fontWeight="800" fill="#1B3A6B"
-        transform={`rotate(90, ${cx + outerR + 8}, ${cy})`}>OUTBOUND</text>
+      {/* Decorative dots along divider (outside ring) */}
+      <circle cx={cx} cy={cy - outerR - 6}  r="3.5" fill="#E05C1A" opacity="0.65"/>
+      <circle cx={cx} cy={cy - outerR - 16} r="2.5" fill="#E05C1A" opacity="0.4"/>
+      <circle cx={cx} cy={cy + outerR + 6}  r="3.5" fill="#1B3A6B" opacity="0.65"/>
+      <circle cx={cx} cy={cy + outerR + 16} r="2.5" fill="#1B3A6B" opacity="0.4"/>
     </svg>
   );
 }
@@ -617,135 +658,88 @@ export default function LandingPage() {
       </section>
 
       {/* ── All Channels Diagram ────────────────────────────────────── */}
-      <section id="channels" className="py-20 px-6 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="flex justify-center mb-5">
+      <section id="channels" className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="flex justify-center mb-6">
               <InstinctRiseLogo size="lg"/>
             </div>
-            <p className="text-[#E05C1A] font-semibold tracking-widest text-sm uppercase mb-3">Full Marketing Integration</p>
+            <p className="text-[#E05C1A] font-semibold tracking-widest text-sm uppercase mb-3">Intelligence Across Every Channel</p>
             <h2 className="text-4xl font-extrabold text-[#0a1f44] mb-4">Every Channel You Already Run. Supercharged.</h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-3">
-              TerritoryIQ isn&apos;t a replacement for your marketing — it&apos;s the intelligence layer that makes <strong className="text-[#0a1f44]">every single channel you already use</strong> dramatically more effective.
-            </p>
-            <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-              Google LSA, cold calls, direct mail, door-to-door, geofence ads, Facebook audiences, your CRM — TerritoryIQ plugs into all of them and tells you exactly which homes to target, so nothing you&apos;re already spending on goes to waste.
+            <p className="text-lg text-slate-500 max-w-3xl mx-auto">
+              TerritoryIQ isn&apos;t a replacement for your marketing — it&apos;s the <strong className="text-[#0a1f44]">predictive intelligence layer</strong> that makes everything you already spend money on dramatically more effective.
             </p>
           </div>
 
-          {/* Three-column layout matching the reference diagram structure */}
-          <div className="grid md:grid-cols-3 gap-6 items-center mb-14">
+          {/* ── Reference-style 3-column: [Inbound] [Wheel] [Outbound] ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px_1fr] gap-10 items-center mb-16">
 
-            {/* Left: Inbound */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-extrabold text-[#E05C1A] text-center md:text-right mb-2">
-                Inbound Marketing
+            {/* LEFT — Inbound Marketing */}
+            <div>
+              <h3 className="text-2xl font-black text-[#E05C1A] mb-7 text-center lg:text-right">
+                Inbound<br/>Marketing
               </h3>
-              {[
-                { label: 'Approach',    text: 'When someone in your ZIP calls from an inbound ad or search, you instantly cross-reference their address against your territory list. You already know if their roof or HVAC is overdue — before the conversation even starts.' },
-                { label: 'Focus',       text: 'Your predicted-failure list is ready the moment you subscribe. These are real addresses, scored right now — not leads to wait on. Use them to prioritize every inbound inquiry that comes through.' },
-                { label: 'Channels',    text: 'Google LSA, organic SEO, review platforms, referral programs — when a call comes in, you have the homeowner\'s urgency score in hand, so you can close at full ticket instead of discounting to compete.' },
-                { label: 'Metrics',     text: 'Track ticket size and close rate against the urgency score. Callers who match a high-urgency address on your list convert at significantly higher rates and require less convincing.' },
-              ].map(item => (
-                <div key={item.label} className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-right">
-                  <div className="font-bold text-sm text-[#E05C1A] mb-1">{item.label}</div>
-                  <div className="text-sm text-slate-600 leading-relaxed">{item.text}</div>
-                </div>
-              ))}
+              <div className="space-y-6">
+                {[
+                  { label: 'Predictive Intelligence', text: 'We use proprietary data to identify homes in your ZIP approaching replacement age — before the homeowner knows they have a problem. You\'re the first call, not the last.' },
+                  { label: 'Replacement Focus',       text: 'These are $15k–$25k roofing jobs and $8k–$15k HVAC replacements — not service calls, not patches. Your exclusive replacement list is ready the day you subscribe.' },
+                  { label: 'Your Inbound Channels',   text: 'Google LSA, organic SEO, referral programs, review platforms — every inbound inquiry is cross-referenced against your territory so you know its replacement potential before you pick up the phone.' },
+                  { label: 'Full-Ticket Value',       text: 'No bidding wars. No race to the bottom. Higher close rates on every inbound call because you\'re talking to homeowners genuinely due for a replacement. One job covers your subscription.' },
+                ].map(item => (
+                  <div key={item.label} className="text-left lg:text-right">
+                    <div className="font-bold text-[#E05C1A] text-sm mb-1">{item.label}:</div>
+                    <p className="text-sm text-slate-600 leading-relaxed">{item.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Center wheel */}
-            <div className="flex flex-col items-center gap-4">
+            {/* CENTER — Wheel */}
+            <div className="flex flex-col items-center gap-5">
               <MarketingWheel/>
-              <div className="flex gap-5 text-xs font-semibold">
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#E05C1A] inline-block"/><span className="text-[#E05C1A]">Inbound</span></span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#1B3A6B] inline-block"/><span className="text-[#1B3A6B]">Outbound</span></span>
+              <div className="flex gap-6 text-xs font-bold">
+                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#E05C1A] inline-block"/><span className="text-[#E05C1A]">Inbound</span></span>
+                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#1B3A6B] inline-block"/><span className="text-[#1B3A6B]">Outbound</span></span>
               </div>
-              <p className="text-center text-xs text-slate-500 max-w-[230px] leading-relaxed">
-                TerritoryIQ powers all 8 channels — one exclusive ZIP, one trade, maximum ROI across every touchpoint.
+              <p className="text-center text-xs text-slate-400 max-w-[240px] leading-relaxed">
+                One exclusive ZIP. One trade. Every channel powered by replacement intelligence.
               </p>
             </div>
 
-            {/* Right: Outbound */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-extrabold text-[#1B3A6B] text-center md:text-left mb-2">
-                Outbound Marketing
+            {/* RIGHT — Outbound Marketing */}
+            <div>
+              <h3 className="text-2xl font-black text-[#1B3A6B] mb-7 text-center lg:text-left">
+                Outbound<br/>Marketing
               </h3>
-              {[
-                { label: 'Approach',  text: 'Broad outreach powered by precision. TerritoryIQ pinpoints exactly which homes to target — 15-year-old roof in a saltwater zone, 11-year HVAC in peak FL heat — before the breakdown, not after.' },
-                { label: 'Focus',     text: 'Push promotional content to high-urgency homes. Your predicted-failure list is ready to dial. Stop cold-calling blind — call warm with a reason.' },
-                { label: 'Channels',  text: 'Cold calls, direct mail blitzes, door-to-door canvassing, geofence ads — all laser-focused on predicted-failure addresses inside your exclusive ZIP.' },
-                { label: 'Metrics',   text: 'Resource-intensive but surgically targeted. Track response rates and close ratios with 20–30% better conversion when outbound is driven by predictive failure data.' },
-              ].map(item => (
-                <div key={item.label} className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <div className="font-bold text-sm text-[#1B3A6B] mb-1">{item.label}</div>
-                  <div className="text-sm text-slate-600 leading-relaxed">{item.text}</div>
-                </div>
-              ))}
+              <div className="space-y-6">
+                {[
+                  { label: 'Proactive Outreach',    text: 'A targeted, data-driven approach: reach replacement-ready homeowners before they hit a crisis, before any competitor knows the opportunity exists. You show up with a reason — not a cold pitch.' },
+                  { label: 'Storm & Cluster Routing', text: 'Post-storm knock lists generated same-day. Cluster routing keeps every outbound visit in one tight zone — hit five replacement-ready homes on the same block in a single afternoon.' },
+                  { label: 'Your Outbound Channels', text: 'Cold calls, direct mail, door-to-door canvassing, geofence ads — all pointed at verified replacement-ready addresses inside your exclusive ZIP. One territory. Zero overlap.' },
+                  { label: 'Exclusive ZIP ROI',      text: 'One contractor per trade, per ZIP. Every dollar you spend on outreach hits a qualified replacement address. No wasted impressions. One replacement job covers the entire cost of TerritoryIQ.' },
+                ].map(item => (
+                  <div key={item.label}>
+                    <div className="font-bold text-[#1B3A6B] text-sm mb-1">{item.label}:</div>
+                    <p className="text-sm text-slate-600 leading-relaxed">{item.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Extended channel cards — additional use cases */}
-          <div className="mb-6">
-            <h3 className="text-center text-lg font-extrabold text-[#0a1f44] mb-6">
-              More Ways to Use TerritoryIQ Intelligence
-            </h3>
+          {/* ── Extended channel cards ── */}
+          <div className="mb-8">
+            <h3 className="text-center text-lg font-extrabold text-[#0a1f44] mb-6">More Ways to Use TerritoryIQ Intelligence</h3>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                {
-                  icon: '📱',
-                  label: 'Digital & Social Ads',
-                  tag: 'Digital',
-                  tagColor: 'bg-orange-100 text-[#E05C1A]',
-                  bar: 'bg-[#E05C1A]',
-                  boost: '20–30% better CVR',
-                  desc: 'Build custom Facebook and Instagram audiences matched to predicted-failure home profiles. Serve ads to the exact homeowners in your ZIP who are statistically overdue.',
-                },
-                {
-                  icon: '📍',
-                  label: 'Geofence Advertising',
-                  tag: 'Hyperlocal',
-                  tagColor: 'bg-blue-100 text-[#1B3A6B]',
-                  bar: 'bg-[#1B3A6B]',
-                  boost: 'Saltwater hotspot zones',
-                  desc: 'Geofence waterfront neighborhoods, older subdivisions, and post-storm corridors where corrosion and system age intersect — serve ads only to the homes that need you most.',
-                },
-                {
-                  icon: '🗂️',
-                  label: 'CRM & Pipeline Automation',
-                  tag: 'Operations',
-                  tagColor: 'bg-slate-100 text-slate-600',
-                  bar: 'bg-slate-500',
-                  boost: 'Zero manual sorting',
-                  desc: 'Predicted-failure lists export directly into your CRM. Prospects auto-score by urgency so your reps always dial the highest-value homeowners first — no guesswork, no wasted calls.',
-                },
-                {
-                  icon: '🌪️',
-                  label: 'Storm / Insurance Canvassing',
-                  tag: 'Event-Driven',
-                  tagColor: 'bg-amber-100 text-amber-700',
-                  bar: 'bg-amber-500',
-                  boost: 'Post-event surge windows',
-                  desc: 'When a storm hits your ZIP, TerritoryIQ instantly surfaces every home in your territory already scored as high-urgency — roof age, material type, prior storm exposure — and generates a sorted address list you can start knocking the same day. No guessing which streets to hit. You know exactly which houses need you most, ranked and ready to go.',
-                },
-                {
-                  icon: '🏘️',
-                  label: 'Neighborhood Clustering',
-                  tag: 'Route Efficiency',
-                  tagColor: 'bg-green-100 text-green-700',
-                  bar: 'bg-green-600',
-                  boost: '70% less windshield time',
-                  desc: 'Because your territory is a single ZIP, all your predicted prospects are clustered. Run door-to-door routes with 5–10 high-urgency homes on the same block — not scattered across the county.',
-                },
-                {
-                  icon: '🔁',
-                  label: 'Preventive Maintenance Upsells',
-                  tag: 'Recurring Revenue',
-                  tagColor: 'bg-purple-100 text-purple-700',
-                  bar: 'bg-purple-600',
-                  boost: 'Lock in annual contracts',
-                  desc: 'Flag homes 2–3 years before full replacement. Offer a maintenance agreement now — you become the trusted contractor already on-site when the replacement conversation opens.',
-                },
+                { icon: '📱', label: 'Digital & Social Ads',       tag: 'Digital',        tagColor: 'bg-orange-100 text-[#E05C1A]', bar: 'bg-[#E05C1A]', boost: '20–30% better CVR',          desc: 'Build Facebook and Instagram audiences matched to replacement-ready home profiles in your ZIP. Serve ads only to homeowners who are actually due — not the entire market.' },
+                { icon: '📍', label: 'Geofence Advertising',        tag: 'Hyperlocal',     tagColor: 'bg-blue-100 text-[#1B3A6B]',   bar: 'bg-[#1B3A6B]', boost: 'Saltwater hotspot zones',    desc: 'Geofence waterfront neighborhoods, older subdivisions, and post-storm corridors where replacement cycles are accelerated — serve ads only to the homes that actually need you.' },
+                { icon: '🗂️', label: 'CRM & Pipeline Automation',  tag: 'Operations',     tagColor: 'bg-slate-100 text-slate-600',   bar: 'bg-slate-500',  boost: 'Zero manual sorting',       desc: 'Replacement-ready address lists export directly into your CRM — sorted by readiness so your reps always call the right homeowner first. No guesswork, no wasted dials.' },
+                { icon: '🌪️', label: 'Storm Canvassing',           tag: 'Event-Driven',   tagColor: 'bg-amber-100 text-amber-700',   bar: 'bg-amber-500',  boost: 'Same-day knock lists',      desc: 'When a storm hits your ZIP, TerritoryIQ instantly surfaces homes our data already shows are due for replacement — roof age, material, storm exposure factored in. Sorted and ready to knock, same day.' },
+                { icon: '🏘️', label: 'Neighborhood Clustering',    tag: 'Route Efficiency',tagColor: 'bg-green-100 text-green-700',   bar: 'bg-green-600',  boost: '70% less windshield time',  desc: 'Because your territory is a single ZIP, every replacement-ready home is clustered together. Hit 5–10 homes on the same block in one route — not scattered across the county.' },
+                { icon: '🔁', label: 'Get There 2 Years Early',    tag: 'Long Game',       tagColor: 'bg-purple-100 text-purple-700', bar: 'bg-purple-600', boost: 'Lock in the job before it bids', desc: 'Our data flags homes 1–2 years out from needing a full replacement. Get in front of them now, build the relationship, and be the obvious first call when the time comes.' },
               ].map(ch => (
                 <div key={ch.label} className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-2">
@@ -767,9 +761,9 @@ export default function LandingPage() {
 
           {/* CRM flow banner */}
           <div className="bg-gradient-to-r from-[#0a1f44] to-[#1B3A6B] rounded-2xl p-6 text-white text-center">
-            <p className="text-sm text-blue-300 uppercase tracking-widest font-semibold mb-2">The Full Loop</p>
+            <p className="text-sm text-blue-300 uppercase tracking-widest font-semibold mb-3">The Full Loop</p>
             <div className="flex flex-wrap justify-center items-center gap-2 text-sm font-bold">
-              {['Predict Failure', '→', 'Identify Address', '→', 'Score Urgency', '→', 'Load into CRM', '→', 'Outreach or Inbound Qualifier', '→', 'Close at Full Ticket', '→', 'Upsell Maintenance'].map((s, i) => (
+              {['Predict Replacement', '→', 'Identify Address', '→', 'Load into CRM', '→', 'Outbound Outreach', '→', 'Qualify Inbound Call', '→', 'Close at Full Ticket'].map((s, i) => (
                 <span key={i} className={s === '→' ? 'text-orange-400' : 'bg-white/10 px-3 py-1 rounded-full text-xs'}>{s}</span>
               ))}
             </div>
