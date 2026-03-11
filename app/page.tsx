@@ -194,16 +194,16 @@ export default function Home() {
   const bGap = iW / CHART_DATA.length;
 
   const inbound = [
-    { name: 'Homeowner Targeting',    desc: 'Direct mail and digital targeting to owners of aging systems.' },
-    { name: 'Replacement-Cycle Ads',  desc: 'Geo-targeted campaigns timed to lifecycle windows.' },
-    { name: 'Community Presence',     desc: 'Neighborhood brand positioning in high-density zones.' },
-    { name: 'Referral Networks',      desc: 'Structured referral capture within exclusive territories.' },
+    { name: 'Install Conversion Intelligence', desc: 'Service calls often come from homes already near system replacement age. TerritoryIQ lets teams instantly identify when a service call is actually a replacement opportunity.' },
+    { name: 'Marketing Efficiency',            desc: 'Instead of advertising to entire ZIP codes, concentrate marketing in neighborhoods where systems are statistically approaching replacement age — cutting waste and increasing ROI.' },
+    { name: 'Service Call Preparation',        desc: 'Before dispatch, teams can quickly see if a property is likely nearing replacement age so technicians arrive prepared with upgrade and replacement options — not just repair parts.' },
+    { name: 'Revenue Per Call Optimization',   desc: 'Increase average ticket value by converting repair calls into installation opportunities when lifecycle data indicates replacement timing is active.' },
   ];
   const outbound = [
-    { name: 'Proactive Outreach',     desc: 'Direct contact with homeowners approaching replacement age.' },
-    { name: 'Routing Clusters',       desc: 'Rapid deployment into territories with the highest install density.' },
-    { name: 'Territory ROI',          desc: 'Track installs, close rate, and revenue per ZIP quarter over quarter.' },
-    { name: 'B2B Ecosystem',          desc: 'Alignment with local property managers and real estate networks.' },
+    { name: 'Territory Sales Focus',       desc: 'Sales teams prioritize neighborhoods where replacement cycles are active rather than working low-probability areas with no lifecycle signal.' },
+    { name: 'Install Pipeline Development', desc: 'Lifecycle intelligence identifies clusters of homes approaching replacement age, creating a predictable, data-backed install pipeline your team can work systematically.' },
+    { name: 'Sales Efficiency',            desc: 'Reps spend time where installs are statistically more likely — maximizing time in the field without wasting hours on homes years away from replacement.' },
+    { name: 'Competitive Timing Advantage', desc: 'Reach homeowners before system failure forces emergency decisions. First contact during the replacement window — not during a crisis — sets the terms of the sale.' },
   ];
 
   return (
@@ -662,6 +662,30 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 9a — WHY CONTRACTORS USE TERRITORYIQ
+      ════════════════════════════════════════════════════════════════════ */}
+      <section className="py-16 md:py-20 bg-[#1B3A6B]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="font-mono-label text-[11px] tracking-widest uppercase text-[#E05C1A] mb-3">The Business Case</div>
+          <h2 className="headline-bebas text-3xl md:text-5xl text-white mb-10">Why Contractors Use TerritoryIQ</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: '↑', text: 'Increase install conversion from inbound service calls' },
+              { icon: '◎', text: 'Target marketing only where replacement demand exists' },
+              { icon: '⊕', text: 'Focus sales teams on high-probability neighborhoods' },
+              { icon: '◷', text: 'Identify install opportunities before emergency failure' },
+              { icon: '⊗', text: 'Lock exclusive ZIP territory before competitors move in' },
+            ].map(b => (
+              <div key={b.text} className="flex items-start gap-4 bg-white/5 border border-white/10 rounded-2xl p-5">
+                <span className="text-[#E05C1A] text-lg font-bold flex-shrink-0 mt-0.5">{b.icon}</span>
+                <span className="text-white/85 text-sm leading-relaxed font-medium">{b.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
           SECTION 9 — HOW CONTRACTORS USE TERRITORYIQ
       ════════════════════════════════════════════════════════════════════ */}
       <section id="how-it-works" className="py-16 md:py-24 bg-white">
@@ -670,9 +694,9 @@ export default function Home() {
           <h2 className="headline-bebas text-3xl md:text-5xl text-[#1B3A6B] mb-10">How Contractors Use TerritoryIQ</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { num: '01', step: 'Step 1', title: 'Predict',  body: 'Identify homes entering HVAC or roof replacement cycles using replacement-cycle modeling and housing infrastructure lifecycle analysis.' },
-              { num: '02', step: 'Step 2', title: 'Outreach', body: 'Focus sales activity in neighborhoods where replacement windows are active — not where competitors happen to be running ads today.' },
-              { num: '03', step: 'Step 3', title: 'Close',    body: 'Convert full-ticket replacement installs before competitors appear. Exclusive territory control means no shared bids, no price wars.' },
+              { num: '01', step: 'Step 1', title: 'Predict', body: 'Identify homes entering HVAC or roof replacement cycles using infrastructure lifecycle modeling and housing age analysis.' },
+              { num: '02', step: 'Step 2', title: 'Target',  body: 'Focus marketing, service call preparation, and sales activity in neighborhoods where replacement cycles are actively developing.' },
+              { num: '03', step: 'Step 3', title: 'Convert', body: 'Convert repair calls and homeowner conversations into full-system installation opportunities before competitors appear.' },
             ].map(s => (
               <div key={s.num} className="bg-white rounded-2xl border border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.08)] p-7 relative overflow-hidden">
                 <div className="absolute top-3 right-4 headline-bebas text-7xl text-slate-100 leading-none select-none">{s.num}</div>
