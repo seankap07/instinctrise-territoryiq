@@ -22,11 +22,23 @@ const navLinks = [
 ];
 
 // ─── Logo ──────────────────────────────────────────────────────────────────────
-// Save your logo PNG to /public/logo.png and it will render automatically.
+// Priority order: /public/logo.mp4 → /public/logo.png → SVG fallback
 
 function InstinctRiseLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const [imgFailed, setImgFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const [imgFailed,   setImgFailed]   = useState(false);
   const hClass = size === 'sm' ? 'h-9' : size === 'lg' ? 'h-20' : 'h-12';
+
+  if (!videoFailed) {
+    return (
+      <video
+        src="/logo.mp4"
+        autoPlay loop muted playsInline
+        className={`${hClass} w-auto object-contain`}
+        onError={() => setVideoFailed(true)}
+      />
+    );
+  }
 
   if (!imgFailed) {
     return (
@@ -39,7 +51,7 @@ function InstinctRiseLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
     );
   }
 
-  // Fallback SVG if /public/logo.png not found
+  // Fallback SVG if neither media file exists yet
   const d = size === 'sm' ? 36 : size === 'lg' ? 60 : 44;
   return (
     <div className="flex items-center gap-2.5">
